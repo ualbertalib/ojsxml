@@ -47,7 +47,7 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
         $q_getIssues = "SELECT trim(issueTitle) issueTitle, issue, year, Volume, datePublished
                    FROM " . $TEMP_TABLE_NAME . " Group by issueTitle order by issueTitle limit " . ($i * $ISSUES_PER_FILE) ." ," . $ISSUES_PER_FILE;
         $db->query( $q_getIssues);
-        echo $q_getIssues . "<br>";
+        //echo $q_getIssues . "<br>";
         $issueRows = $db->resultset();
         if (count($issueRows) == 0){
             break;
@@ -73,8 +73,8 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
             $q_getSection ="SELECT sectionTitle,sectionAbbrev FROM  " . $TEMP_TABLE_NAME .
                 " WHERE trim(issueTitle) = :issueTitle group by sectionTitle, sectionAbbrev ";
             $db->query($q_getSection);
-            echo $q_getSection . "<br>";
-            echo "issueTitle = " . $r['issueTitle'] . "<br>";
+           // echo $q_getSection . "<br>";
+            echo "issueTitle = " . $r['issueTitle'] . "\n";
             $db->bind(":issueTitle", trim($r['issueTitle']));
             $sectionRows = $db->resultset();
 
@@ -94,7 +94,7 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
             $xmlWriter->startElement("articles");
             foreach($sectionAbbreviations as $key => $sectionAbbrev){
 
-                $sectionQuery = "SELECT 	issueTitle,	sectionTitle,sectionAbbrev,	authors,	articleTitle, 
+                $sectionQuery = "SELECT issueTitle,	sectionTitle,sectionAbbrev,	authors, affiliations, articleTitle, 
                 year, 	(datePublished) datePublished,	volume, 
                 issue, startPage, COALESCE(endPage,'') as endPage,  articleAbstract as abstract, 	
                 galleyLabel,	authorEmail,	fileName,	keywords	 
@@ -132,4 +132,4 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
     $xmlWriter->flush();
 
 
-echo "XML file(s) have been generated, please check the output folder.\n";
+echo "\nXML file(s) have been generated, please check the output folder.\n";

@@ -9,13 +9,14 @@ namespace OJSXml;
 class Authors
 {
 
-    protected $authors, $xml, $email;
+    protected $authors, $xml, $email, $affiliations;
 
-    function __construct($authorStr, \XMLWriter & $xml, $email)
+    function __construct($authorStr, \XMLWriter & $xml, $email, $affiliations)
     {
         $this->authors = explode(";",$authorStr);
         $this->email = $email;
         $this->xml = $xml;
+        $this->affiliations = $affiliations;
     }
 
     function getAuthorXML(){
@@ -31,6 +32,7 @@ class Authors
             }
             $this->firstName($i);
             $this->lastName($i);
+            $this->affiliation($i);
             $this->email();
             $this->xml->endElement();
         }
@@ -52,6 +54,25 @@ class Authors
         $this->xml->writeRaw(trim($name[1]));
         }
         $this->xml->endElement();
+
+    }
+    private function affiliation($idx){
+        $affiliation = "";
+
+        if($this->affiliations != ''){
+        $affiliationAry = explode(";",$this->affiliations);
+
+        if(isset($affiliationAry[$idx])){
+            $affiliation = $affiliationAry[$idx];
+        }elseif(isset($affiliationAry[0])){
+            $affiliation = $affiliationAry[0];
+        }
+
+        $this->xml->startElement("affiliation");
+            $this->xml->writeRaw( xmlFormat(trim($affiliation)));
+        $this->xml->endElement();
+
+        }
 
     }
 

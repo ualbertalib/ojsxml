@@ -9,10 +9,10 @@ class SQLiteDB implements Database
 {
 
     private $stmt;
-    private $dbh;
+
     private $error;
 
-    private $dbname    = DB_NAME;
+
     private $handle;
     private $rowcount;
 
@@ -27,8 +27,7 @@ class SQLiteDB implements Database
     }
 
     public function query($query){
-     //   $array['dbhandle'] = $this->dbhandle;
-        // temporary store the query
+
 
         $this->stmt  = $this->handle->prepare($query);
 

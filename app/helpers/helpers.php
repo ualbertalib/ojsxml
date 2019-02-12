@@ -96,12 +96,15 @@ function csv_to_array($filename='', $delimiter=',')
     {
         while (($row = fgetcsv($handle, 10000, $delimiter)) !== FALSE)
         {
-            if(!$header)
+
+            if(!$header){
                 $header = $row;
-            else{
+            }else{
                 $data[] = array_combine($header, $row);
+
             }
         }
+
         fclose($handle);
     }
     return $data;

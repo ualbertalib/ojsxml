@@ -36,7 +36,7 @@ $xmlWriter->startElement("article");  /** @var $xmlWriter XMLWriter */
 
 
     $fields = array("authors");
-    $authorsXml = new Authors($articleRow['authors'], $xmlWriter, $articleRow['authorEmail']);
+    $authorsXml = new Authors($articleRow['authors'], $xmlWriter, $articleRow['authorEmail'], $articleRow['affiliations']);
     $authorsXml->getAuthorXML();
 
     $xmlWriter->startElement("submission_file");

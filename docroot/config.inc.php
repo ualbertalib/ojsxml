@@ -1,23 +1,17 @@
 <?php
-// Define configuration
 
-define("DB_HOST", "localhost");
-define("DB_USER", "root");
-define("DB_PASS", "adminuser");
-define("DB_NAME", "ojs2");
 
 /**
- * Can be SQLITE or MYSQL
- */
-$DB_TYPE = 'SQLITE';
-
-/**
- * IF SQLITE is used this must be defined;
+ * Define the filename of the SQLite database
  */
 define("SQLITE_LOCATION" ,'mysqlitedb.db');
 
+// Used to support MySQL however these database tended to be small so SQLite is all that is needed.
+$DB_TYPE="SQLite";
+
 $ISSUES_PER_FILE = 50;
 
-$PDF_URL = "http://journals.library.ualberta.ca/custom/pdfs/";
+// The place where the PDF files are located
+$PDF_URL = "http://journals.something.com/pdfs/";
 
 $TEMP_TABLE_NAME = 'ojs_import_helper';
