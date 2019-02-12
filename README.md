@@ -1,4 +1,4 @@
-#CSV to OJS XML Import
+# CSV to OJS XML Import
 This application will convert a csv file into the ojs xml native import file.
 The XSD is here:
 https://github.com/pkp/ojs/blob/ojs-stable-3_1_0/plugins/importexport/native/native.xsd
@@ -19,7 +19,7 @@ https://github.com/pkp/pkp-lib/blob/master/plugins/importexport/native/pkp-nativ
 
 Note: This is NOT a comprehensive csv to ojs xml conversion and many fields are left out.
 
-##How to Use
+## How to Use
 1. Setup the variables in docroot/config.inc.php file.
 * The $PDF_URL variable is the URL where the PDF files are located the filename in the csv field is appended to the value of the $PDF_URL. So the PDF files will need to be web accessible.
 2. Place CSV file(s) in docroot/csv/abstracts directory
@@ -27,11 +27,11 @@ Note: This is NOT a comprehensive csv to ojs xml conversion and many fields are 
 3. Run php generateXml.php
 4. the xml file(s) will be output in the docroot/output directory
 
-#Users to XML Import
+# Users to XML Import
 
 This will convert a CSV file into ojs 3 users xml import.
 
-##How to Use
+## How to Use
 1. Enter in user data into the examples\users.csv
 2. Save the file to  docroot\csv\users\\*.csv
 3. Run "php generateUsersXml.php" from the command line
