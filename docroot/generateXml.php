@@ -44,7 +44,7 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
     // Orders the article sequence
         $article_sequence = 0;
 
-        $q_getIssues = "SELECT trim(issueTitle) issueTitle, issue, year, Volume, datePublished
+        $q_getIssues = "SELECT trim(issueTitle) issueTitle, issue, year, Volume, datePublished, cover_image_filename, cover_image_alt_text
                    FROM " . $TEMP_TABLE_NAME . " Group by issueTitle order by issueTitle limit " . ($i * $ISSUES_PER_FILE) ." ," . $ISSUES_PER_FILE;
         $db->query( $q_getIssues);
         //echo $q_getIssues . "<br>";
@@ -85,6 +85,11 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
                 $sectionAbbreviations[] = $sectionRow['sectionAbbrev'];
             }
             $xmlWriter->endElement(); // </sections>
+            
+            
+            if( trim($r['cover_image_filename']) != ''){            
+             include('inc/issuecoversrows.inc.php');
+            }
 
 
 

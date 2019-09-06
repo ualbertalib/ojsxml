@@ -26,7 +26,7 @@ $xmlWriter->startElement("article");  /** @var $xmlWriter XMLWriter */
         foreach($keywordAry as $keyword){
             $xmlWriter->startElement('subject');
         //    $xmlWriter->writeAttribute('locale', 'en_US');
-            $xmlWriter->writeRaw(trim($keyword));
+            $xmlWriter->writeRaw(xmlFormat(trim($keyword)));
             $xmlWriter->endElement();
         }
         $xmlWriter->endElement();

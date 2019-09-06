@@ -42,6 +42,8 @@ class TempTable
 
 
     private function createTable(){
+        
+       
 
         $sql = "CREATE TABLE IF NOT EXISTS " . $this->tempTableName . " (      
                       `issueTitle` varchar(500)  DEFAULT NULL,
@@ -60,23 +62,25 @@ class TempTable
                       `galleyLabel` varchar(500)  DEFAULT NULL,
                       `authorEmail` varchar(500)  DEFAULT NULL,
                       `fileName` varchar(500)  DEFAULT NULL,
-                      `keywords` varchar(500)  DEFAULT NULL
+                      `keywords` varchar(500)  DEFAULT NULL,
+                      `cover_image_filename` varchar(500) DEFAULT NULL,
+                      `cover_image_alt_text` varchar(500) DEFAULT NULL                   
                     )";
 
         $this->db->query($sql);
         $this->db->execute();
-
+ 
     }
     
     function insertDataIntoTempTable($data){
 
         $sql = "INSERT into  " . $this->tempTableName . "
                               (issueTitle,sectionTitle,sectionAbbrev,authors,affiliations,articleTitle,`year`,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,
-                              authorEmail,fileName,keywords) 
+                              authorEmail,fileName,keywords,cover_image_filename,cover_image_alt_text) 
                                 values (:issueTitle,:sectionTitle,:sectionAbbrev,:authors,:affiliations,:articleTitle,:year,:datePublished,
                                 :volume,:issue,:startPage,:endPage,
                                 :articleAbstract,:galleyLabel,
-                              :authorEmail,:fileName,:keywords)";
+                              :authorEmail,:fileName,:keywords,:cover_image_filename,:cover_image_alt_text)";
         $this->db->query($sql);
         $this->db->bind(':issueTitle',$data[0]);
         $this->db->bind(':sectionTitle',$data[1]);
@@ -100,6 +104,9 @@ class TempTable
             $val = $data[16];
         }
         $this->db->bind(':keywords',$val);
+        
+        $this->db->bind(':cover_image_filename',$data[17]);
+        $this->db->bind(':cover_image_alt_text',$data[18]);
 
         $this->db->execute();
     }
@@ -107,19 +114,28 @@ class TempTable
 
     function insertAssocDataIntoTempTable($data){
 
+
         $sql = "INSERT into  " . $this->tempTableName . "
                               (issueTitle,sectionTitle,sectionAbbrev,authors,affiliations,articleTitle,`year`,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,
-                              authorEmail,fileName,keywords) 
+                              authorEmail,fileName,keywords,cover_image_filename,cover_image_alt_text) 
                                 VALUES (:issueTitle,:sectionTitle,:sectionAbbrev,:authors,:affiliations,:articleTitle,:year,:datePublished,
                                 :volume,:issue,:startPage,:endPage,
                                 :articleAbstract,:galleyLabel,
-                              :authorEmail,:fileName,:keywords)";
+                              :authorEmail,:fileName,:keywords,:cover_image_filename,:cover_image_alt_text)";
         $this->db->query($sql);
         $this->db->bind(':issueTitle', $data['issueTitle']);
         $this->db->bind(':sectionTitle', $data['sectionTitle']);
         $this->db->bind(':sectionAbbrev', $data['sectionAbbrev']);
         $this->db->bind(':authors', $data['authors']);
+
+        if(isset($data['affiliation']) || isset($data['affiliations'])){
         $this->db->bind(':affiliations', (isset($data['affiliation'])?$data['affiliation']:$data['affiliations']));
+        }elseif(isset($data['authorAffiliation'])){
+            $this->db->bind(':affiliations', $data['authorAffiliation']);
+        }else{
+            $this->db->bind(':affiliations', '');
+        }
+
         $this->db->bind(':articleTitle', $data['articleTitle']);
         $this->db->bind(':year', $data['year']);
         $this->db->bind(':datePublished', $data['datePublished']);
@@ -137,7 +153,9 @@ class TempTable
             $val = $data['keywords'];
         }
         $this->db->bind(':keywords',$val);
-
+        $this->db->bind(':cover_image_filename', $data['cover_image_filename']);
+        $this->db->bind(':cover_image_alt_text', $data['cover_image_alt_text']);
+        
         $this->db->execute();
     }
 

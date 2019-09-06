@@ -7,7 +7,7 @@ namespace OJSXml;
 
 use \PDO;
 
-class MySQL implements Database{
+class Database {
 
     private $stmt;
     private $dbh;
@@ -19,7 +19,6 @@ class MySQL implements Database{
     private $dbname    = DB_NAME;
 
     function __construct(){
-
 
             $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname;
             // Set options
@@ -34,11 +33,11 @@ class MySQL implements Database{
             } catch(PDOException $e){
                 $this->error = $e->getMessage();
             }
+
     }
 
     public function query($query){
         $this->stmt = $this->dbh->prepare($query);
-
     }
 
     /**
