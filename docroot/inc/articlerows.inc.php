@@ -2,14 +2,31 @@
 use OJSXml\Authors;
 
 $xmlWriter->startElement("article");  /** @var $xmlWriter XMLWriter */
+
+
     $xmlWriter->writeAttribute("section_ref",$sectionAbbrev);
     $xmlWriter->writeAttribute("stage","production");
     $xmlWriter->writeAttribute("date_published", date("Y-m-d", strtotime(trim($articleRow['datePublished']))));
     $xmlWriter->writeAttribute("seq", $article_sequence);
-
+    
+    
+    $doi = trim($articleRow['DOI']);
+    if($doi!=""){
+        $xmlWriter->startElement("id");
+            $xmlWriter->writeAttribute("type","doi");
+            $xmlWriter->writeAttribute("advice","update");
+            $xmlWriter->writeRaw(xmlFormat($doi));
+        $xmlWriter->endElement();
+    }
     $xmlWriter->startElement("title");
         $xmlWriter->writeRaw(xmlFormat(trim($articleRow['articleTitle'])));
     $xmlWriter->endElement();
+    
+    if(trim($articleRow['subTitle'])!=""){ 
+    $xmlWriter->startElement("subtitle");
+        $xmlWriter->writeRaw(xmlFormat(trim($articleRow['subTitle'])));
+    $xmlWriter->endElement();
+    }
 
     $xmlWriter->startElement("abstract");
         $xmlWriter->writeRaw(xmlFormat(trim($articleRow['abstract'])));
@@ -43,16 +60,18 @@ $xmlWriter->startElement("article");  /** @var $xmlWriter XMLWriter */
         $xmlWriter->writeAttribute("id", $submission_id);
         $xmlWriter->writeAttribute("stage","proof");
 
-        // if the desiredExtension is missing append it to the filename
-        $fileName = fileExtensionAppender($articleRow['fileName'],'pdf');
+        $fileName = $articleRow['fileName'];
+        $baseFileName = basename($articleRow['fileName']); // removes the path if it exists 
+        
+     
         $xmlWriter->startElement("revision");
             $xmlWriter->writeAttribute("genre", "Article Text");
-            $xmlWriter->writeAttribute("number", 1);
+            $xmlWriter->writeAttribute("number", 1); 
             $xmlWriter->writeAttribute("filetype", getFiletype($articleRow['galleyLabel']));
-            $xmlWriter->writeAttribute("filename", $fileName);
+            $xmlWriter->writeAttribute("filename", $baseFileName);
 
             $xmlWriter->startElement("name");
-            $xmlWriter->writeRaw($fileName);
+            $xmlWriter->writeRaw($baseFileName);
             $xmlWriter->endElement();
             $xmlWriter->startElement("href");
             $xmlWriter->writeAttribute("src", $PDF_URL . $fileName);
@@ -60,13 +79,47 @@ $xmlWriter->startElement("article");  /** @var $xmlWriter XMLWriter */
             $xmlWriter->endElement();
         $xmlWriter->endElement();
     $xmlWriter->endElement();
+    
+    
+    $suppRows = explode(",",$articleRow['supplementary_files']);
+
+    $n=0;
+    
+    foreach($suppRows as $r){       
+        $n +=1;
+        $r = trim($r);
+        $parts = parse_url($r);
+        $filename = basename($parts["path"]);
+        
+        $suppId = $submission_id . "_" . $n;
+        $xmlWriter->startElement("supplementary_file");
+        $xmlWriter->writeAttribute("stage", "proof");
+        $xmlWriter->writeAttribute("id", $suppId);
+        $xmlWriter->startElement("revision");
+        $xmlWriter->writeAttribute("number", 1 );
+        $xmlWriter->writeAttribute("filetype", get_mime_type($filename) );
+        $xmlWriter->writeAttribute("genre", "Other");
+        $xmlWriter->writeAttribute("viewable", "false");
+        $xmlWriter->writeAttribute("filename", $filename);
+        $xmlWriter->startElement("name");
+         $xmlWriter->writeRaw(basename($r));
+        $xmlWriter->endElement();
+        $xmlWriter->startElement("href");
+         $xmlWriter->writeAttribute("src",$r);
+         $xmlWriter->writeAttribute("mime_type", get_mime_type($filename));
+        $xmlWriter->endElement();
+        $xmlWriter->endElement();
+        $xmlWriter->endElement();
+    }
+
+    
 
 $xmlWriter->startElement("article_galley");
     $xmlWriter->startElement("id");
         $xmlWriter->writeRaw($submission_id);
     $xmlWriter->endElement();
     $xmlWriter->startElement("name");
-        $xmlWriter->writeRaw("PDF");
+        $xmlWriter->writeRaw($articleRow['galleyLabel']);
     $xmlWriter->endElement();
     $xmlWriter->startElement("seq");
         $xmlWriter->writeRaw("1");

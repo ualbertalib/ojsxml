@@ -99,7 +99,7 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
             $xmlWriter->startElement("articles");
             foreach($sectionAbbreviations as $key => $sectionAbbrev){
 
-                $sectionQuery = "SELECT issueTitle,	sectionTitle,sectionAbbrev,	authors, affiliations, articleTitle, 
+                $sectionQuery = "SELECT issueTitle,	sectionTitle,sectionAbbrev, supplementary_files, authors, affiliations, DOI, articleTitle, subTitle, 
                 year, 	(datePublished) datePublished,	volume, 
                 issue, startPage, COALESCE(endPage,'') as endPage,  articleAbstract as abstract, 	
                 galleyLabel,	authorEmail,	fileName,	keywords	 
@@ -116,6 +116,7 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
                 //echo "<br> Article -- <br>";
                 //echo pre($articleRows);
 
+                
                 foreach ($articleRows as $articleRow) {
                     $submission_id += 1;
                     $article_sequence += 1;
