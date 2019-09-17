@@ -83,41 +83,64 @@ $xmlWriter->startElement("article");  /** @var $xmlWriter XMLWriter */
     
     $suppRows = explode(",",$articleRow['supplementary_files']);
 
-    $n=0;
     
-    foreach($suppRows as $r){       
-        $n +=1;
-        $r = trim($r);
+    $n = array();
+    foreach($suppRows as $key=>$r){
+      
+        $n[$key] = $key;
+        $r[$key] = trim($r);
         $parts = parse_url($r);
-        $filename = basename($parts["path"]);
+        $filename[$key] = basename($parts["path"]);
         
-        $suppId = $submission_id . "_" . $n;
+        $suppId[$key] = $submission_id . "_" . $n[$key];
         $xmlWriter->startElement("supplementary_file");
         $xmlWriter->writeAttribute("stage", "proof");
-        $xmlWriter->writeAttribute("id", $suppId);
+        $xmlWriter->writeAttribute("id", $suppId[$key]);
         $xmlWriter->startElement("revision");
         $xmlWriter->writeAttribute("number", 1 );
-        $xmlWriter->writeAttribute("filetype", get_mime_type($filename) );
+        $xmlWriter->writeAttribute("filetype", get_mime_type($filename[$key]) );
         $xmlWriter->writeAttribute("genre", "Other");
         $xmlWriter->writeAttribute("viewable", "false");
-        $xmlWriter->writeAttribute("filename", $filename);
+        $xmlWriter->writeAttribute("filename", $filename[$key]);
         $xmlWriter->startElement("name");
-         $xmlWriter->writeRaw(basename($r));
+         $xmlWriter->writeRaw(basename(trim($r)));
         $xmlWriter->endElement();
         $xmlWriter->startElement("href");
-         $xmlWriter->writeAttribute("src",$r);
-         $xmlWriter->writeAttribute("mime_type", get_mime_type($filename));
+         $xmlWriter->writeAttribute("src",trim($r));
+         $xmlWriter->writeAttribute("mime_type", get_mime_type($filename[$key]));
         $xmlWriter->endElement();
         $xmlWriter->endElement();
         $xmlWriter->endElement();
+       
     }
-
     
-
+     /**
+        * Article Galley for supplementary Files
+        */
+      foreach($suppRows as $key=>$r){
+        $xmlWriter->startElement("article_galley");
+        //$xmlWriter->startElement("id");
+         //   $xmlWriter->writeRaw($submission_id);
+       // $xmlWriter->endElement();
+        $xmlWriter->startElement("name");
+            $xmlWriter->writeRaw($filename[$key]);
+        $xmlWriter->endElement();
+        $xmlWriter->startElement("seq");
+            $xmlWriter->writeRaw("1");
+        $xmlWriter->endElement();
+        $xmlWriter->startElement("submission_file_ref");
+            $xmlWriter->writeAttribute("id",$suppId[$key]);
+            $xmlWriter->writeAttribute("revision",1);
+        $xmlWriter->endElement();
+        $xmlWriter->endElement();
+      }
+    
+/**
+ * Article Galley for the main file
+ */
 $xmlWriter->startElement("article_galley");
-    $xmlWriter->startElement("id");
-        $xmlWriter->writeRaw($submission_id);
-    $xmlWriter->endElement();
+    // $xmlWriter->startElement("id"); $xmlWriter->writeRaw($submission_id);    $xmlWriter->endElement();
+    
     $xmlWriter->startElement("name");
         $xmlWriter->writeRaw($articleRow['galleyLabel']);
     $xmlWriter->endElement();
@@ -128,7 +151,6 @@ $xmlWriter->startElement("article_galley");
         $xmlWriter->writeAttribute("id",$submission_id);
         $xmlWriter->writeAttribute("revision",1);
     $xmlWriter->endElement();
-
 $xmlWriter->endElement();
     /*
     $xmlWriter->startElement("article_galley");
