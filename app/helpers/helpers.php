@@ -38,7 +38,7 @@ function getFiletype($ext){
     if ($ext == 'pdf') {
         $type = "application/pdf";
     }elseif($ext == 'html' || $ext == 'htm'){
-        $type='plain/html';
+        $type='text/html';
     }elseif($ext == 'docx' || $ext == 'doc'){
         $type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     }else{
