@@ -85,7 +85,7 @@ class TempTable
                                 :volume,:issue,:startPage,:endPage, :articleAbstract,:galleyLabel, 
                               :authorEmail,:fileName,:supplementary_files,:keywords,:cover_image_filename,:cover_image_alt_text)";
         $this->db->query($sql);
-        $this->db->bind(':issueTitle', $data['issueTitle']);
+        $this->db->bind(':issueTitle', $data['issueTitle']??'');
         $this->db->bind(':sectionTitle', $data['sectionTitle']);
         $this->db->bind(':sectionAbbrev', $data['sectionAbbrev']);
         $this->db->bind(':authors', $data['authors']);
@@ -98,9 +98,9 @@ class TempTable
             $this->db->bind(':affiliations', '');
         }
 
-        $this->db->bind(':DOI', $data['DOI']);
+        $this->db->bind(':DOI', $data['DOI']??'');
         $this->db->bind(':articleTitle', $data['articleTitle']);
-        $this->db->bind(':subTitle', $data['subTitle']);
+        $this->db->bind(':subTitle', $data['subTitle']??'');
         $this->db->bind(':year', $data['year']);
         $this->db->bind(':datePublished', $data['datePublished']);
         $this->db->bind(':volume', $data['volume']);
@@ -111,7 +111,7 @@ class TempTable
         $this->db->bind(':galleyLabel', $data['galleyLabel']);
         $this->db->bind(':authorEmail', $data['authorEmail']);
         $this->db->bind(':fileName', $data['fileName']);
-        $this->db->bind(':supplementary_files', $data['supplementary_files']);
+        $this->db->bind(':supplementary_files', $data['supplementary_files']?? '' );
         
 
 
@@ -120,8 +120,8 @@ class TempTable
             $val = $data['keywords'];
         }
         $this->db->bind(':keywords',$val);
-        $this->db->bind(':cover_image_filename', $data['cover_image_filename']);
-        $this->db->bind(':cover_image_alt_text', $data['cover_image_alt_text']);
+        $this->db->bind(':cover_image_filename', $data['cover_image_filename']??'');
+        $this->db->bind(':cover_image_alt_text', $data['cover_image_alt_text']??'');
         
         $this->db->execute();
     }

@@ -18,6 +18,7 @@ if ($doi != "") {
     $xmlWriter->endElement();
 }
 $xmlWriter->startElement("title");
+$xmlWriter->writeAttribute("locale", "en_US");
 $xmlWriter->writeRaw(xmlFormat(trim($articleRow['articleTitle'])));
 $xmlWriter->endElement();
 
@@ -80,7 +81,7 @@ $xmlWriter->endElement();
 $xmlWriter->endElement();
 
 
-if (isset($articleRow['supplementary_files'])) {
+if (isset($articleRow['supplementary_files']) && $articleRow['supplementary_files'] != '') {
     $suppRows = explode(",", $articleRow['supplementary_files']);
     $n = array();
     foreach ($suppRows as $key => $r) {
