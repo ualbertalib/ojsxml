@@ -1,7 +1,7 @@
 # CSV to OJS XML Import for OJS 3.1.2
 This application will convert a csv file into the ojs xml native import file.
 The XSD is here:
-https://github.com/pkp/ojs/blob/ojs-stable-3_1_2/plugins/importexport/native/native.xsd
+https://github.com/pkp/ojs/blob/stable-3_1_2/plugins/importexport/native/native.xsd
 and
 https://github.com/pkp/pkp-lib/blob/master/plugins/importexport/native/pkp-native.xsd
 
