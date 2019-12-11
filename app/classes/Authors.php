@@ -49,10 +49,12 @@ class Authors
    private function firstName($idx){
         $name = explode(",",$this->authors[$idx]);
 
-        $this->xml->startElement("firstname");
+        $this->xml->startElement("givenname");
+        $this->xml->writeAttribute("locale","en_US");
         if( isset($name[1])){
-        $this->xml->writeRaw(trim($name[1]));
+        $this->xml->writeRaw(trim($name[1])); 
         }
+        
         $this->xml->endElement();
 
     }
@@ -79,10 +81,11 @@ class Authors
     private function lastName($idx){
         $name = explode(",",$this->authors[$idx]);
 
-        $this->xml->startElement("lastname");
+        $this->xml->startElement("familyname");
+        $this->xml->writeAttribute("locale","en_US");
         if( isset($name[0])) {
             $this->xml->writeRaw(trim($name[0]));
-        }
+        }        
         $this->xml->endElement();
 
     }

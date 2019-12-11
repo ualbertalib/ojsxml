@@ -12,6 +12,8 @@ $DB_TYPE="SQLite";
 $ISSUES_PER_FILE = 50;
 
 // The place where the PDF files are located
-$PDF_URL = "https://journals.library.ualberta.ca/custom/pdfs/bluejay/";
+// $PDF_URL = "http://www.istl.org/";
+
+$PDF_URL = "https://journals.library.ualberta.ca/custom/pdfs/HSI/"; 
 
 $TEMP_TABLE_NAME = 'ojs_import_helper';
