@@ -99,10 +99,10 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
             $xmlWriter->startElement("articles");
             foreach($sectionAbbreviations as $key => $sectionAbbrev){
 
-                $sectionQuery = "SELECT issueTitle,	sectionTitle,sectionAbbrev, supplementary_files, authors, affiliations, DOI, articleTitle, subTitle, 
+                $sectionQuery = "SELECT issueTitle, sectionTitle,sectionAbbrev, supplementary_files, authors, affiliations, DOI, articleTitle, subTitle, 
                 year, 	(datePublished) datePublished,	volume, 
                 issue, startPage, COALESCE(endPage,'') as endPage,  articleAbstract as abstract, 	
-                galleyLabel,	authorEmail,	fileName,	keywords	 
+                galleyLabel,	authorEmail,	fileName,	keywords, language
                 FROM " . $TEMP_TABLE_NAME . " 
                 WHERE trim(issueTitle) = trim(:issueTitle) and trim(sectionAbbrev) = trim(:sectionAbbrev)";
                 $db->query($sectionQuery);

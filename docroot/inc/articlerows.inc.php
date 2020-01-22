@@ -7,6 +7,12 @@ $xmlWriter->writeAttribute("section_ref", $sectionAbbrev);
 $xmlWriter->writeAttribute("stage", "production");
 $xmlWriter->writeAttribute("date_published", date("Y-m-d", strtotime(trim($articleRow['datePublished']))));
 $xmlWriter->writeAttribute("seq", $article_sequence);
+if(isset($locale)){
+$xmlWriter->writeAttribute("locale", $locale);
+}
+
+$xmlWriter->writeAttribute("language", $articleRow['language']);
+
 
 
 $doi = trim($articleRow['DOI']);
@@ -63,11 +69,12 @@ $xmlWriter->writeAttribute("stage", "proof");
 $fileName = $articleRow['fileName'];
 $baseFileName = basename($articleRow['fileName']); // removes the path if it exists 
 
+$fileExt = get_file_extension($fileName);
 
 $xmlWriter->startElement("revision");
 $xmlWriter->writeAttribute("genre", "Article Text");
 $xmlWriter->writeAttribute("number", 1);
-$xmlWriter->writeAttribute("filetype", getFiletype($articleRow['galleyLabel']));
+$xmlWriter->writeAttribute("filetype", getFiletype($fileExt));
 $xmlWriter->writeAttribute("filename", $baseFileName);
 
 $xmlWriter->startElement("name");
@@ -75,7 +82,7 @@ $xmlWriter->writeRaw($baseFileName);
 $xmlWriter->endElement();
 $xmlWriter->startElement("href");
 $xmlWriter->writeAttribute("src", $PDF_URL . $fileName);
-$xmlWriter->writeAttribute("mime_type", getFiletype($articleRow['galleyLabel']));
+$xmlWriter->writeAttribute("mime_type", getFiletype($fileExt));
 $xmlWriter->endElement();
 $xmlWriter->endElement();
 $xmlWriter->endElement();

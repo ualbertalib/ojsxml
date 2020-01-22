@@ -65,7 +65,8 @@ class TempTable
                       `supplementary_files` varchar(500)  DEFAULT NULL,                      
                       `keywords` varchar(500)  DEFAULT NULL,
                       `cover_image_filename` varchar(500) DEFAULT NULL,
-                      `cover_image_alt_text` varchar(500) DEFAULT NULL                   
+                      `cover_image_alt_text` varchar(500) DEFAULT NULL,
+                      `language` varchar(10) DEFAULT NULL
                     )";
 
         $this->db->query($sql);
@@ -80,10 +81,10 @@ class TempTable
 
         $sql = "INSERT into  " . $this->tempTableName . "
                               (issueTitle,sectionTitle,sectionAbbrev,authors,affiliations,DOI,articleTitle,subTitle,`year`,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,
-                              authorEmail,fileName,supplementary_files,keywords,cover_image_filename,cover_image_alt_text) 
+                              authorEmail,fileName,supplementary_files,keywords,cover_image_filename,cover_image_alt_text,language) 
                                 VALUES (:issueTitle,:sectionTitle,:sectionAbbrev,:authors,:affiliations,:DOI, :articleTitle,:subTitle,:year,:datePublished,
                                 :volume,:issue,:startPage,:endPage, :articleAbstract,:galleyLabel, 
-                              :authorEmail,:fileName,:supplementary_files,:keywords,:cover_image_filename,:cover_image_alt_text)";
+                              :authorEmail,:fileName,:supplementary_files,:keywords,:cover_image_filename,:cover_image_alt_text,:language)";
         $this->db->query($sql);
         $this->db->bind(':issueTitle', $data['issueTitle']??'');
         $this->db->bind(':sectionTitle', $data['sectionTitle']);
@@ -104,7 +105,7 @@ class TempTable
         $this->db->bind(':year', $data['year']);
         $this->db->bind(':datePublished', $data['datePublished']);
         $this->db->bind(':volume', $data['volume']);
-        $this->db->bind(':issue', $data['issue']);
+        $this->db->bind(':issue', $data['issueTitle']);
         $this->db->bind(':startPage', $data['startPage']);
         $this->db->bind(':endPage', $data['endPage']);
         $this->db->bind(':articleAbstract', $data['articleAbstract']);
@@ -122,6 +123,7 @@ class TempTable
         $this->db->bind(':keywords',$val);
         $this->db->bind(':cover_image_filename', $data['cover_image_filename']??'');
         $this->db->bind(':cover_image_alt_text', $data['cover_image_alt_text']??'');
+        $this->db->bind(':language', $data['language']??'');
         
         $this->db->execute();
     }

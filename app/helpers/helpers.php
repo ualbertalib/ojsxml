@@ -10,6 +10,11 @@ function pre($s){
     echo "</pre>";
 }
 
+function get_file_extension($file_name) {
+	return substr(strrchr($file_name,'.'),1);
+}
+
+
 function semiColonFix($keywords){
     $keywords = str_replace("; ", ";",$keywords);
     $keywords = str_replace(";", "; ", $keywords);

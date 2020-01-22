@@ -12,9 +12,17 @@ class Authors
     protected $authors, $xml, $email, $affiliations;
 
     function __construct($authorStr, \XMLWriter & $xml, $email, $affiliations)
-    {
-        $this->authors = explode(";",$authorStr);
-        $this->email = $email;
+    {   
+        // if part of array is blank then filter it out
+        $this->authors = array_filter(explode(";",$authorStr), function($str){
+            return trim($str)==''?false:true;
+        });        
+        print_r($this->authors);
+        
+        $this->email = array_filter(explode(";",$email),function($str){
+            return trim($str)==''?false:true;
+        });        
+         print_r($this->email);
         $this->xml = $xml;
         $this->affiliations = $affiliations;
     }
@@ -33,7 +41,7 @@ class Authors
             $this->firstName($i);
             $this->lastName($i);
             $this->affiliation($i);
-            $this->email();
+            $this->email($i);
             $this->xml->endElement();
         }
         $this->xml->endElement();
@@ -41,19 +49,26 @@ class Authors
 
     }
 
-    private function email(){
+    private function email($idx){
+        
         $this->xml->startElement('email');
-        $this->xml->writeRaw($this->email);
+        $this->xml->writeRaw($this->email[$idx] ?? '');
         $this->xml->endElement();
+        
     }
    private function firstName($idx){
         $name = explode(",",$this->authors[$idx]);
 
         $this->xml->startElement("givenname");
-        $this->xml->writeAttribute("locale","en_US");
-        if( isset($name[1])){
-        $this->xml->writeRaw(trim($name[1])); 
-        }
+      //  $this->xml->writeAttribute("locale","en_US");
+        
+             // if givenName is blank set the givenname to the family name ($name[0]) then make the family name blank.
+            if(!isset($name[1])){
+                $this->xml->writeRaw(trim($name[0])); 
+                $this->authors[$idx] = '';  
+            }else{
+                $this->xml->writeRaw(trim($name[1])); 
+            }            
         
         $this->xml->endElement();
 
@@ -82,7 +97,7 @@ class Authors
         $name = explode(",",$this->authors[$idx]);
 
         $this->xml->startElement("familyname");
-        $this->xml->writeAttribute("locale","en_US");
+      //  $this->xml->writeAttribute("locale","en_US");
         if( isset($name[0])) {
             $this->xml->writeRaw(trim($name[0]));
         }        

@@ -9,11 +9,11 @@ define("SQLITE_LOCATION" ,'mysqlitedb.db');
 // Used to support MySQL however these database tended to be small so SQLite is all that is needed.
 $DB_TYPE="SQLite";
 
-$ISSUES_PER_FILE = 50;
+$ISSUES_PER_FILE = 70;
 
 // The place where the PDF files are located
-// $PDF_URL = "http://www.istl.org/";
 
-$PDF_URL = "https://journals.library.ualberta.ca/custom/pdfs/HSI/"; 
+//$PDF_URL = "https://journals.something.com"; 
+$PDF_URL = ""; 
 
 $TEMP_TABLE_NAME = 'ojs_import_helper';

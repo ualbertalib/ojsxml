@@ -14,7 +14,7 @@ $xmlWriter->writeAttribute('published', '1');
         $xmlWriter->writeRaw($r['year']);
         $xmlWriter->endElement();
         $xmlWriter->startElement("title");
-        $xmlWriter->writeRaw($r['issueTitle']);
+        $xmlWriter->writeRaw(xmlFormat($r['issueTitle']));
         $xmlWriter->endElement();
     $xmlWriter->endElement();
     $xmlWriter->startElement("date_published");
