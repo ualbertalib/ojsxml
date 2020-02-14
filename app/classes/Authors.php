@@ -17,12 +17,12 @@ class Authors
         $this->authors = array_filter(explode(";",$authorStr), function($str){
             return trim($str)==''?false:true;
         });        
-        print_r($this->authors);
+       // print_r($this->authors);
         
         $this->email = array_filter(explode(";",$email),function($str){
             return trim($str)==''?false:true;
         });        
-         print_r($this->email);
+      //   print_r($this->email);
         $this->xml = $xml;
         $this->affiliations = $affiliations;
     }

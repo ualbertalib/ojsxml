@@ -7,8 +7,8 @@ $xmlWriter->writeAttribute("section_ref", $sectionAbbrev);
 $xmlWriter->writeAttribute("stage", "production");
 $xmlWriter->writeAttribute("date_published", date("Y-m-d", strtotime(trim($articleRow['datePublished']))));
 $xmlWriter->writeAttribute("seq", $article_sequence);
-if(isset($locale)){
-$xmlWriter->writeAttribute("locale", $locale);
+if (isset($locale)) {
+    $xmlWriter->writeAttribute("locale", $locale);
 }
 
 $xmlWriter->writeAttribute("language", $articleRow['language']);
@@ -78,10 +78,10 @@ $xmlWriter->writeAttribute("filetype", getFiletype($fileExt));
 $xmlWriter->writeAttribute("filename", $baseFileName);
 
 $xmlWriter->startElement("name");
-$xmlWriter->writeRaw($baseFileName);
+$xmlWriter->writeRaw(xmlFormat($baseFileName));
 $xmlWriter->endElement();
 $xmlWriter->startElement("href");
-$xmlWriter->writeAttribute("src", $PDF_URL . $fileName);
+$xmlWriter->writeAttribute("src", $PDF_URL . xmlFormat($fileName));
 $xmlWriter->writeAttribute("mime_type", getFiletype($fileExt));
 $xmlWriter->endElement();
 $xmlWriter->endElement();
@@ -91,10 +91,10 @@ $xmlWriter->endElement();
 if (isset($articleRow['supplementary_files']) && $articleRow['supplementary_files'] != '') {
     $suppRows = explode(",", $articleRow['supplementary_files']);
     $n = array();
-    foreach ($suppRows as $key => $r) {
+    foreach ($suppRows as $key => $v) {
         $n[$key] = $key;
-        $r[$key] = trim($r);
-        $parts = parse_url($r);
+        $v[$key] = trim($v);
+        $parts = parse_url($v);
         $filename[$key] = basename($parts["path"]);
 
         $suppId[$key] = $submission_id . "_" . $n[$key];
@@ -108,10 +108,10 @@ if (isset($articleRow['supplementary_files']) && $articleRow['supplementary_file
         $xmlWriter->writeAttribute("viewable", "false");
         $xmlWriter->writeAttribute("filename", $filename[$key]);
         $xmlWriter->startElement("name");
-        $xmlWriter->writeRaw(basename(trim($r)));
+        $xmlWriter->writeRaw(basename(trim($v)));
         $xmlWriter->endElement();
         $xmlWriter->startElement("href");
-        $xmlWriter->writeAttribute("src", trim($r));
+        $xmlWriter->writeAttribute("src", trim($v));
         $xmlWriter->writeAttribute("mime_type", get_mime_type($filename[$key]));
         $xmlWriter->endElement();
         $xmlWriter->endElement();
@@ -120,7 +120,7 @@ if (isset($articleRow['supplementary_files']) && $articleRow['supplementary_file
     /**
      * Article Galley for supplementary Files
      */
-    foreach ($suppRows as $key => $r) {
+    foreach ($suppRows as $key => $v) {
         $xmlWriter->startElement("article_galley");
         //$xmlWriter->startElement("id");
         //   $xmlWriter->writeRaw($submission_id);
@@ -135,6 +135,43 @@ if (isset($articleRow['supplementary_files']) && $articleRow['supplementary_file
         $xmlWriter->writeAttribute("id", $suppId[$key]);
         $xmlWriter->writeAttribute("revision", 1);
         $xmlWriter->endElement();
+        $xmlWriter->endElement();
+    }
+}
+
+if (isset($articleRow['dependent_files']) && $articleRow['dependent_files'] != '') {
+    $depRows = explode(",", $articleRow['dependent_files']);
+    foreach ($depRows as $key => $depURL) {
+        $n[$key] = $key;
+        $v[$key] = trim($depURL);
+        $parts = parse_url($depURL);
+        $filename[$key] = basename($parts["path"]);
+
+        $depId[$key] = $submission_id . "_" . $n[$key];
+        $xmlWriter->startElement("artwork_file");
+         $xmlWriter->writeAttribute("stage", "dependent");
+         $xmlWriter->writeAttribute("id", $depId[$key]);
+        
+            $xmlWriter->startElement("revision");
+             $xmlWriter->writeAttribute("number", 1);
+             $xmlWriter->writeAttribute("viewable", "false");
+             $xmlWriter->writeAttribute("filename", $filename[$key]); 
+             $xmlWriter->writeAttribute("genre", "Image");
+             $xmlWriter->writeAttribute("filetype", get_mime_type($filename[$key]));
+
+                $xmlWriter->startElement("name");
+                    $xmlWriter->writeRaw($filename[$key]);
+                $xmlWriter->endElement();
+                $xmlWriter->startElement("submission_file_ref");
+                    $xmlWriter->writeAttribute("id", $submission_id);
+                    $xmlWriter->writeAttribute("revision", 1);
+                $xmlWriter->endElement();
+                $xmlWriter->startElement("href");                   
+                    $xmlWriter->writeAttribute("src", trim($depURL));
+                    $xmlWriter->writeAttribute("mime_type",get_mime_type($filename[$key]));
+                $xmlWriter->endElement();
+
+            $xmlWriter->endElement();
         $xmlWriter->endElement();
     }
 }

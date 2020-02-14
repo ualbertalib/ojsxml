@@ -4,9 +4,12 @@
 $xmlWriter->writeAttribute('published', '1');
 
     $xmlWriter->startElement("issue_identification");
+        if($r['volume'] != ""){
         $xmlWriter->startElement("volume");
         $xmlWriter->writeRaw($r['volume']);
         $xmlWriter->endElement();
+        }
+        
         $xmlWriter->startElement("number");
         $xmlWriter->writeRaw($r['issue']);
         $xmlWriter->endElement();
