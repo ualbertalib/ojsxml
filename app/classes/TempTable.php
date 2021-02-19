@@ -5,6 +5,8 @@ namespace OJSXml;
 
 
 
+use Exception;
+
 class TempTable
 {
 
@@ -34,7 +36,7 @@ class TempTable
 
         $row = $this->db->single("Select count(*) as counter from " .$this->tempTableName);
         if($row['counter']>0){
-            throw new \Exception("Table '" . $this->tempTableName . "' must be blank to start the process");
+            throw new Exception("Table '" . $this->tempTableName . "' must be blank to start the process");
         }
         return true;
     }

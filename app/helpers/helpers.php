@@ -11,7 +11,7 @@ function pre($s){
 }
 
 function get_file_extension($file_name) {
-	return substr(strrchr($file_name,'.'),1);
+    return substr(strrchr($file_name,'.'),1);
 }
 
 
@@ -168,12 +168,12 @@ function fileExtensionAppender($fileName, $desiredExtention='pdf'){
  */
 function csv_to_array($filename='', $delimiter=',')
 {
-    if(!file_exists($filename) || !is_readable($filename))
-        return FALSE;
+    if(!file_exists($filename) || !is_readable($filename) || is_dir($filename))
+        return false;
 
-    $header = NULL;
+    $header = null;
     $data = array();
-    if (($handle = fopen($filename, 'r')) !== FALSE)
+    if (($handle = fopen($filename, 'r')) !== false)
     {
         while (($row = fgetcsv($handle, 10000, $delimiter,'"')) !== FALSE)
         {
