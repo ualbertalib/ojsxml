@@ -142,12 +142,12 @@ foreach ($files as $filepath) {
             $xmlWriter->writeRaw("true");
             $xmlWriter->endElement();
             $xmlWriter->startElement("name");
-                $xmlWriter->writeAttribute("locale","en_US");
-                $xmlWriter->writeRaw("Reader");
+            $xmlWriter->writeAttribute("locale","en_US");
+            $xmlWriter->writeRaw("Reader");
             $xmlWriter->endElement();
             $xmlWriter->startElement("abbrev");
-                $xmlWriter->writeAttribute("locale","en_US");
-                $xmlWriter->writeRaw("Read");
+            $xmlWriter->writeAttribute("locale","en_US");
+            $xmlWriter->writeRaw("Read");
             $xmlWriter->endElement();
             $xmlWriter->startElement("stage_assignments");
             $xmlWriter->endElement();

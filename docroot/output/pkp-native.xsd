@@ -3,9 +3,9 @@
 <!--
   * plugins/importexport/native/pkp-native.xsd
   *
-  * Copyright (c) 2014-2017 Simon Fraser University
-  * Copyright (c) 2003-2017 John Willinsky
-  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+  * Copyright (c) 2014-2020 Simon Fraser University
+  * Copyright (c) 2003-2020 John Willinsky
+  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
   *
   * Schema describing native XML import/export elements shared across PKP applications
   -->
@@ -90,6 +90,7 @@
 					<sequence>
 						<element ref="pkp:id" minOccurs="0" maxOccurs="unbounded" />
 						<element name="name" type="pkp:localizedNode" minOccurs="1" maxOccurs="unbounded" />
+						<element name="submission_file_ref" type="pkp:submission_file_ref" minOccurs="0" maxOccurs="1" />
 						<group ref="pkp:fileContents" />
 					</sequence>
 					<attribute name="direct_sales_price" type="decimal" />
@@ -105,6 +106,7 @@
 					<attribute name="filetype" type="normalizedString" use="required" />
 				</complexType>
 			</element>
+			<element name="salesType" minOccurs="0" maxOccurs="1" />
 		</sequence>
 		<attribute name="id" type="normalizedString" />
 		<attribute name="stage">
@@ -148,6 +150,7 @@
 			<element name="is_default" type="boolean" />
 			<element name="show_title" type="boolean" />
 			<element name="permit_self_registration" type="boolean" />
+			<element name="permit_metadata_edit" type="boolean" />
 			<element name="name" type="pkp:localizedNode" minOccurs="0" maxOccurs="unbounded" />
 			<element name="abbrev" type="pkp:localizedNode" minOccurs="0" maxOccurs="unbounded" />
 			<element name="stage_assignments" type="string" minOccurs="1" maxOccurs="1" />
@@ -170,9 +173,8 @@
 	<!-- An identity (e.g. user, author) -->
 	<complexType name="identity" abstract="true">
 		<sequence>
-			<element name="firstname" type="string" />
-			<element name="middlename" type="string" minOccurs="0" maxOccurs="1" />
-			<element name="lastname" type="string" />
+			<element name="givenname" type="pkp:localizedNode" minOccurs="1" maxOccurs="unbounded" />
+			<element name="familyname" type="pkp:localizedNode" minOccurs="0" maxOccurs="unbounded" />
 			<element name="affiliation" type="pkp:localizedNode" minOccurs="0" maxOccurs="unbounded" />
 			<element name="country" type="string" minOccurs="0" maxOccurs="1" />
 			<element name="email" type="string" />
@@ -188,6 +190,8 @@
 				<attribute name="primary_contact" type="boolean" default="false" />
 				<attribute name="user_group_ref" type="pkp:user_group_ref" use="required" />
 				<attribute name="include_in_browse" type="boolean" default="true" />
+				<attribute name="seq" type="int" use="required" />
+				<attribute name="id" type="int" use="required" />
 			</extension>
 		</complexContent>
 	</complexType>
@@ -206,9 +210,25 @@
 				<element name="remote" type="pkp:remote" minOccurs="0" maxOccurs="1" />
 			</choice>
 		</sequence>
+		<attribute name="locale" type="string" use="optional" />
+		<attribute name="url_path" type="string" use="optional" />
 	</complexType>
 
 	<complexType name="submission">
+		<sequence>
+			<element ref="pkp:id" minOccurs="0" maxOccurs="unbounded" />
+
+			<!-- Metadata -->
+			<element ref="pkp:submission_file" minOccurs="0" maxOccurs="unbounded" />
+			<element ref="pkp:pkppublication" minOccurs="1" maxOccurs="unbounded" />
+		</sequence>
+		<attribute name="status" type="string" use="optional" />
+		<attribute name="current_publication_id" type="int" use="optional" />
+		<attribute name="date_submitted" type="date" use="optional" />
+		<attribute name="submission_progress" type="int" use="optional" />
+	</complexType>
+
+	<complexType name="pkppublication">
 		<sequence>
 			<element ref="pkp:id" minOccurs="0" maxOccurs="unbounded" />
 
@@ -229,13 +249,17 @@
 			<element ref="pkp:disciplines" minOccurs="0" maxOccurs="unbounded" />
 			<element ref="pkp:subjects" minOccurs="0" maxOccurs="unbounded" />
 			<element ref="pkp:authors" minOccurs="1" maxOccurs="1" />
-			<element ref="pkp:submission_file" minOccurs="0" maxOccurs="unbounded" />
 			<element ref="pkp:representation" minOccurs="0" maxOccurs="unbounded" />
+			<element ref="pkp:citations" minOccurs="0" maxOccurs="unbounded"/>
 		</sequence>
 		<attribute name="locale" type="string" use="optional" />
 		<attribute name="language" type="string" use="optional" />
 		<attribute name="date_submitted" type="date" use="optional" />
 		<attribute name="date_published" type="date" use="optional" />
+		<attribute name="version" type="int" use="optional" />
+		<attribute name="status" type="int" use="optional" />
+		<attribute name="primary_contact_id" type="int" use="optional" />
+		<attribute name="url_path" type="string" use="optional" />
 	</complexType>
 
 	<!-- ************
@@ -301,6 +325,8 @@
 	<!-- Permit "submission" as a root element -->
 	<element name="submission" type="pkp:submission" abstract="true" />
 
+	<element name="pkppublication" type="pkp:pkppublication" />
+
 	<!-- Controlled vocabularies -->
 	<element name="keywords">
 		<complexType>
@@ -321,7 +347,7 @@
 	<element name="disciplines">
 		<complexType>
 			<sequence>
-				<element name="disciplin" type="string" minOccurs="1" maxOccurs="unbounded" />
+				<element name="discipline" type="string" minOccurs="1" maxOccurs="unbounded" />
 			</sequence>
 			<attribute name="locale" type="string" />
 		</complexType>
@@ -334,5 +360,12 @@
 			<attribute name="locale" type="string" />
 		</complexType>
 	</element>
-
+	<element name="citations">
+		<complexType>
+			<sequence>
+				<element name="citation" type="string" minOccurs="0" maxOccurs="unbounded" />
+			</sequence>
+			<attribute name="locale" type="string" />
+		</complexType>
+	</element>
 </schema>
