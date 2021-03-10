@@ -3,9 +3,9 @@
 <!--
   * plugins/importexport/native/native.xsd
   *
-  * Copyright (c) 2014-2017 Simon Fraser University
-  * Copyright (c) 2003-2017 John Willinsky
-  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+  * Copyright (c) 2014-2020 Simon Fraser University
+  * Copyright (c) 2003-2020 John Willinsky
+  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
   *
   * Schema describing native XML import/export elements specific to OJS
   -->
@@ -22,13 +22,6 @@
 		<complexType>
 			<complexContent>
 				<extension base="pkp:submission">
-					<sequence>
-						<element ref="pkp:issue_identification" minOccurs="0" maxOccurs="1" />
-						<element maxOccurs="1" minOccurs="0" name="pages" type="string" />
-					</sequence>
-					<attribute name="section_ref" type="string" use="required" />
-					<attribute name="seq" type="int" />
-					<attribute name="access_status" type="int" />
 					<attribute name="stage" use="required">
 						<simpleType>
 							<restriction base="string">
@@ -44,6 +37,28 @@
 		</complexType>
 	</element>
 	<element name="articles" substitutionGroup="pkp:submissions" />
+
+	<!-- Permit "citation" as a root element to keep the filters happy -->
+	<element name="citation" type="string" />
+
+	<element name="publication" substitutionGroup="pkp:pkppublication">
+		<complexType>
+			<complexContent>
+				<extension base="pkp:pkppublication">
+					<sequence>
+						<element ref="pkp:issue_identification" minOccurs="0" maxOccurs="1" />
+						<element maxOccurs="1" minOccurs="0" name="pages" type="string" />
+						<element ref="pkp:covers" minOccurs="0" maxOccurs="1" />
+						<element maxOccurs="1" minOccurs="0" name="issueId" type="int" />
+						<element ref="pkp:citations" minOccurs="0" maxOccurs="unbounded"/>
+					</sequence>
+					<attribute name="section_ref" type="string" use="required" />
+					<attribute name="seq" type="int" />
+					<attribute name="access_status" type="int" />
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
 
 	<!-- Configure the use of the "article_galley" representation -->
 	<element name="article_galley" substitutionGroup="pkp:representation">
@@ -117,8 +132,8 @@
 			<element name="last_modified" type="date" minOccurs="0" maxOccurs="1" />
 			<element name="open_access_date" type="date" minOccurs="0" maxOccurs="1" />
 			<!-- sub elements -->
-			<element ref="pkp:sections" minOccurs="1" maxOccurs="1" />
-			<element ref="pkp:issue_covers" minOccurs="0" maxOccurs="1" />
+			<element ref="pkp:sections" minOccurs="0" maxOccurs="1" />
+			<element ref="pkp:covers" minOccurs="0" maxOccurs="1" />
 			<element ref="pkp:issue_galleys" minOccurs="0" maxOccurs="1" />
 			<element ref="pkp:articles" minOccurs="1" maxOccurs="1" />
 		</sequence>
@@ -126,6 +141,7 @@
 		<attribute name="published" type="int" use="optional" />
 		<attribute name="current" type="int" use="optional" />
 		<attribute name="access_status" type="int" use="optional" />
+		<attribute name="url_path" type="string" use="optional" />
 	</complexType>
 
 	<element name="issue_identification">
@@ -142,6 +158,7 @@
 	<complexType name="issue_galley">
 		<sequence>
 			<element name="label" type="string" minOccurs="1" maxOccurs="1" />
+			<element ref="pkp:id" minOccurs="0" maxOccurs="unbounded" />
 			<element ref="pkp:issue_file" minOccurs="0" maxOccurs="1" />
 		</sequence>
 		<attribute name="locale" type="string" />
@@ -160,7 +177,7 @@
 		</sequence>
 	</complexType>
 
-	<element name="issue_covers">
+	<element name="covers">
 		<complexType>
 			<sequence>
 				<element ref="pkp:cover" minOccurs="1" maxOccurs="unbounded" />

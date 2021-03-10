@@ -46,12 +46,14 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
 
         $q_getIssues = "SELECT trim(issueTitle) issueTitle, issue, year, Volume, datePublished, cover_image_filename, cover_image_alt_text
                    FROM " . $TEMP_TABLE_NAME . " Group by issueTitle order by issueTitle limit " . ($i * $ISSUES_PER_FILE) ." ," . $ISSUES_PER_FILE;
+        //echo $q_getIssues;
         $db->query( $q_getIssues);
         //echo $q_getIssues . "<br>";
         $issueRows = $db->resultset();
         if (count($issueRows) == 0){
             break;
         }
+       // print_r($issueRows);
 
         $xmlWriter = new XMLWriter();
         $xmlWriter->openURI("output/" . $i . ".xml");
@@ -63,6 +65,8 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
         $xmlWriter->writeAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
         $xmlWriter->writeAttribute("xsi:schemaLocation","http://pkp.sfu.ca native.xsd");
 
+
+        
         foreach ($issueRows as $r) {
             $xmlWriter->startElement("issue");
             include ('inc/issuerows.inc.php');
@@ -91,20 +95,21 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
              include('inc/issuecoversrows.inc.php');
             }
 
-
-
             /**
              * ARTICLE
              */
             $xmlWriter->startElement("articles");
+           
             foreach($sectionAbbreviations as $key => $sectionAbbrev){
-
-                $sectionQuery = "SELECT issueTitle,	sectionTitle,sectionAbbrev,	authors, affiliations, articleTitle, 
+                
+                
+                
+                $sectionQuery = "SELECT issueTitle, sectionTitle,sectionAbbrev, supplementary_files, dependent_files , authors, affiliations, DOI, articleTitle, subTitle, 
                 year, 	(datePublished) datePublished,	volume, 
                 issue, startPage, COALESCE(endPage,'') as endPage,  articleAbstract as abstract, 	
-                galleyLabel,	authorEmail,	fileName,	keywords	 
+                galleyLabel, authorEmail, fileName, keywords, language
                 FROM " . $TEMP_TABLE_NAME . " 
-                WHERE trim(issueTitle) = trim(:issueTitle) and trim(sectionAbbrev) = trim(:sectionAbbrev)";
+                WHERE trim(issueTitle) = trim(:issueTitle) and trim(sectionAbbrev) = trim(:sectionAbbrev)"; 
                 $db->query($sectionQuery);
                 $db->bind(":issueTitle", $r['issueTitle']);
                 $db->bind(":sectionAbbrev", $sectionAbbrev);
@@ -116,6 +121,7 @@ for($i = 0; $i < $issueCount['issueCount']; $i++ ){
                 //echo "<br> Article -- <br>";
                 //echo pre($articleRows);
 
+                
                 foreach ($articleRows as $articleRow) {
                     $submission_id += 1;
                     $article_sequence += 1;

@@ -9,87 +9,101 @@ namespace OJSXml;
 class Authors
 {
 
-    protected $authors, $xml, $email, $affiliations;
+    protected $authors, $email, $affiliations;
 
-    function __construct($authorStr, \XMLWriter & $xml, $email, $affiliations)
-    {
-        $this->authors = explode(";",$authorStr);
-        $this->email = $email;
-        $this->xml = $xml;
+    function __construct($authorStr, $email, $affiliations)
+    {   
+        // if part of array is blank then filter it out
+        $this->authors = array_filter(explode(";",$authorStr), function($str){
+            return trim($str)==''?false:true;
+        });        
+       // print_r($this->authors);
+        
+        $this->email = array_filter(explode(";",$email),function($str){
+            return trim($str)==''?false:true;
+        });        
+      //   print_r($this->email);
         $this->affiliations = $affiliations;
     }
 
-    function getAuthorXML(){
+    /**
+     * Gets authors with info, including, given name, family name, email, affiliation, and country
+     *
+     * @return array Array of authors
+     */
+    public function getAuthors() {
+        $authorCountry = Config::get("author_country");
 
-        $this->xml->startElement("authors");
-        for($i=0; $i<$this->authorCount(); $i++){
-            $this->xml->startElement("author");
-            $this->xml->writeAttribute("user_group_ref","Author");
-            $this->xml->writeAttribute("include_in_browse","true"); 
-            // the first author in the list is considered the primary contact
-            if($i==0){
-                $this->xml->writeAttribute("primary_contact","true");
+        $authorsArray = array();
+        for ($i = 0; $i < $this->authorCount(); $i++) {
+
+            if ($this->getEmail($i) == "") {
+                $authorEmail = $this->getEmail(0);
+            } else {
+                $authorEmail = $this->getEmail($i);
             }
-            $this->firstName($i);
-            $this->lastName($i);
-            $this->affiliation($i);
-            $this->email();
-            $this->xml->endElement();
-        }
-        $this->xml->endElement();
-        return $this->xml;
 
-    }
-
-    private function email(){
-        $this->xml->startElement('email');
-        $this->xml->writeRaw($this->email);
-        $this->xml->endElement();
-    }
-   private function firstName($idx){
-        $name = explode(",",$this->authors[$idx]);
-
-        $this->xml->startElement("firstname");
-        if( isset($name[1])){
-        $this->xml->writeRaw(trim($name[1]));
-        }
-        $this->xml->endElement();
-
-    }
-    private function affiliation($idx){
-        $affiliation = "";
-
-        if($this->affiliations != ''){
-        $affiliationAry = explode(";",$this->affiliations);
-
-        if(isset($affiliationAry[$idx])){
-            $affiliation = $affiliationAry[$idx];
-        }elseif(isset($affiliationAry[0])){
-            $affiliation = $affiliationAry[0];
+            $authorsArray[] = array(
+                "givenname" => $this->getGivenName($i),
+                "familyname" => $this->getFamilyName($i),
+                "affiliation" => $this->getAffiliation($i),
+                "country" => $authorCountry,
+                "email" => $authorEmail,
+            );
         }
 
-        $this->xml->startElement("affiliation");
-            $this->xml->writeRaw( xmlFormat(trim($affiliation)));
-        $this->xml->endElement();
-
-        }
-
+        return $authorsArray;
     }
 
-    private function lastName($idx){
-        $name = explode(",",$this->authors[$idx]);
-
-        $this->xml->startElement("lastname");
-        if( isset($name[0])) {
-            $this->xml->writeRaw(trim($name[0]));
-        }
-        $this->xml->endElement();
-
-    }
-
-
-    function authorCount(){
+    /**
+     * How many authors the object contains
+     *
+     * @return int Number of authors
+     */
+    public function authorCount(){
         return count($this->authors);
     }
 
+    private function getEmail($idx){
+        return $this->email[$idx] ?? "";
+    }
+
+    private function getGivenName($idx){
+        $name = explode(",",$this->authors[$idx]);
+
+        // if givenName is blank set the givenname to the family name ($name[0]) then make the family name blank.
+        if(!isset($name[1])){
+            $this->authors[$idx] = '';
+            return trim($name[0]);
+        }else{
+            return trim($name[1]);
+        }
+    }
+
+    private function getAffiliation($idx){
+        $affiliation = "";
+
+        if($this->affiliations != '') {
+            $affiliationAry = explode(";",$this->affiliations);
+
+            if(isset($affiliationAry[$idx])){
+                $affiliation = $affiliationAry[$idx];
+            } else if (isset($affiliationAry[0])) {
+                $affiliation = $affiliationAry[0];
+            }
+
+        }
+
+        return xmlFormat(trim($affiliation));
+    }
+
+    private function getFamilyName($idx){
+        $name = explode(",",$this->authors[$idx]);
+
+        if( isset($name[0])) {
+            return trim($name[0]);
+        } else {
+            return "";
+        }
+    }
 }

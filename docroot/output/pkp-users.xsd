@@ -3,9 +3,9 @@
 <!--
   * plugins/importexport/users/pkp-users.xsd
   *
-  * Copyright (c) 2014-2018 Simon Fraser University
-  * Copyright (c) 2003-2018 John Willinsky
-  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+  * Copyright (c) 2014-2020 Simon Fraser University
+  * Copyright (c) 2003-2020 John Willinsky
+  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
   *
   * Schema describing native XML import/export elements specific to OMP
   -->
@@ -49,9 +49,6 @@
                     <element name="gossip" type="string" minOccurs="0" maxOccurs="1" />
                     <element name="signature" type="pkp:localizedNode" minOccurs="0" maxOccurs="unbounded" />
                     <element name="password" type="pkp:password" minOccurs="1" maxOccurs="1" />
-                    <element name="salutation" type="string" minOccurs="0" maxOccurs="1" />
-                    <element name="initials" type="string" minOccurs="0" maxOccurs="1" />
-                    <element name="suffix" type="string" minOccurs="0" maxOccurs="1" />
                     <element name="date_registered" type="string" minOccurs="0" maxOccurs="1" />
                     <element name="date_last_login" type="string" minOccurs="0" maxOccurs="1" />
                     <element name="date_last_email" type="string" minOccurs="0" maxOccurs="1" />

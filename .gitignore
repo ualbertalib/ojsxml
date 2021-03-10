@@ -3,3 +3,4 @@ docroot/csv/*.csv
 docroot/output/*.xml
 *.db
 
+/docroot/csv/abstracts/*.csv
