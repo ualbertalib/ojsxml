@@ -19,6 +19,7 @@ abstract class XMLBuilder {
      * @param $filePath
      */
     function __construct($filePath, &$dbManager = null) {
+
         $this->_xmlWriter = new XmlWriter();
         $this->_xmlWriter->openUri($filePath);
         $this->_xmlWriter->startDocument();

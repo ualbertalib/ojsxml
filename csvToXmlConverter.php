@@ -28,7 +28,13 @@ class csvToXmlConverter {
         $this->_sourceDir = array_shift($argv);
         $this->_destinationDir = array_shift($argv);
 
-        if ($this->_command != "issues" && $this->_command != "users" & $this->_command != "help") {
+        $validCommands = [
+            "issues",
+            "users",
+            "users:test",
+            "help"
+        ];
+        if (!in_array($this->_command, $validCommands)) {
             echo '[Error]: Valid commands are "issues" or "users"' . PHP_EOL;
             exit();
         }
@@ -55,8 +61,9 @@ class csvToXmlConverter {
      */
     public function usage() {
         echo "Script to convert issue or user CSV data to OJS XML" . PHP_EOL
-            . "Usage: issues|users <ojs_username> <source_directory> <destination_directory>" . PHP_EOL . PHP_EOL
-            . 'NB: `issues` source directory must include "issue_cover_images" and "article_galleys" directory' . PHP_EOL;
+            . "Usage: issues|users|users:test <ojs_username> <source_directory> <destination_directory>" . PHP_EOL . PHP_EOL
+            . 'NB: `issues` source directory must include "issue_cover_images" and "article_galleys" directory' . PHP_EOL
+            . 'user:test appends "test" to user email addresses' . PHP_EOL;
         exit();
     }
 
@@ -71,10 +78,15 @@ class csvToXmlConverter {
             case "users":
                 $this->generateUsersXml($this->_sourceDir, $this->_destinationDir);
                 break;
+            case "users:test":
+                $this->generateUsersXml($this->_sourceDir, $this->_destinationDir, true);
+                break;
             case "help":
                 $this->usage();
                 break;
         }
+
+        Logger::writeOut($this->_command, $this->_user);
     }
 
     /**
@@ -92,12 +104,15 @@ class csvToXmlConverter {
 
         $articleGalleysDir = $sourceDir . "/article_galleys/";
 
-        echo "Running issue CSV-to-XML conversion..." . PHP_EOL
-            . "----------------------------------------" . PHP_EOL;
+        Logger::print("Running issue CSV-to-XML conversion...");
+        Logger::print("----------------------------------------");
 
         for ($i = 0; $i < ceil($issueCount / Config::get("issues_per_file") ); $i++) {
+            $fileName = "issues_" . formatOutputFileNumber($issueCount, $i) . ".xml";
+            Logger::print("===== " . $fileName . " =====");
+
             $xmlBuilder = new IssuesXmlBuilder(
-                $destinationDir . "/issues_{$i}.xml",
+                $destinationDir . "/" . $fileName,
                 $dbManager,
                 $issueCoversDir,
                 $articleGalleysDir,
@@ -106,8 +121,8 @@ class csvToXmlConverter {
             $xmlBuilder->buildXml();
         }
 
-        echo "----------------------------------------" . PHP_EOL
-            . "Successfully converted {$issueCount} issue(s)." . PHP_EOL;
+        Logger::print("----------------------------------------");
+        Logger::print("Successfully converted {$issueCount} issue(s).");
     }
 
     /**
@@ -116,22 +131,25 @@ class csvToXmlConverter {
      * @param string $sourceDir Location of CSV files
      * @param string $destinationDir Target directory for XML files
      */
-    private function generateUsersXml($sourceDir, $destinationDir) {
+    private function generateUsersXml($sourceDir, $destinationDir, $isTest = false) {
         $files = glob($sourceDir . "/*");
         $filesCount = 0;
 
-        echo "Running user CSV-to-XML conversion..." . PHP_EOL;
+        Logger::print("Running user CSV-to-XML conversion...");
 
         foreach ($files as $file) {
             $filesCount += 1;
             $data = csv_to_array($file, ",");
 
-            $xmlBuilder = new UsersXmlBuilder($destinationDir . "/users_{$filesCount}.xml");
+            if (empty($data)) {
+                continue;
+            }
+            $xmlBuilder = new UsersXmlBuilder($isTest,$destinationDir . "/users_{$filesCount}.xml");
             $xmlBuilder->setData($data);
             $xmlBuilder->buildXml();
         }
 
-        echo "Successfully converted {$filesCount} user file(s)." . PHP_EOL;
+        Logger::print("Successfully converted {$filesCount} user file(s).");
     }
 }
 
