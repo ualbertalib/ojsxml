@@ -19,6 +19,12 @@ class csvToXmlConverter {
     function __construct($argv = array()) {
         array_shift($argv);
 
+        // For custom debugging functions. See `Debugger` class
+        if ($argv[0] == 'debug') {
+            $this->_command = array_shift($argv);
+            return;
+        }
+
         if (sizeof($argv) != 4) {
             $this->usage();
         }
@@ -60,6 +66,11 @@ class csvToXmlConverter {
         exit();
     }
 
+    public function debug() {
+        $debugger = new Debugger();
+        $debugger->execute();
+    }
+
     /**
      * Executes tasks associated with given command
      */
@@ -74,7 +85,12 @@ class csvToXmlConverter {
             case "help":
                 $this->usage();
                 break;
+            case "debug":
+                $this->debug();
+                break;
         }
+
+        Logger::writeOut($this->_command, $this->_user);
     }
 
     /**
@@ -92,12 +108,15 @@ class csvToXmlConverter {
 
         $articleGalleysDir = $sourceDir . "/article_galleys/";
 
-        echo "Running issue CSV-to-XML conversion..." . PHP_EOL
-            . "----------------------------------------" . PHP_EOL;
+        Logger::print("Running issue CSV-to-XML conversion...");
+        Logger::print("----------------------------------------");
 
         for ($i = 0; $i < ceil($issueCount / Config::get("issues_per_file") ); $i++) {
+            $fileName = "issues_" . formatOutputFileNumber($issueCount, $i) . ".xml";
+            Logger::print("===== " . $fileName . " =====");
+
             $xmlBuilder = new IssuesXmlBuilder(
-                $destinationDir . "/issues_{$i}.xml",
+                $destinationDir . "/" . $fileName,
                 $dbManager,
                 $issueCoversDir,
                 $articleGalleysDir,
@@ -106,8 +125,8 @@ class csvToXmlConverter {
             $xmlBuilder->buildXml();
         }
 
-        echo "----------------------------------------" . PHP_EOL
-            . "Successfully converted {$issueCount} issue(s)." . PHP_EOL;
+        Logger::print("----------------------------------------");
+        Logger::print("Successfully converted {$issueCount} issue(s).");
     }
 
     /**
@@ -120,7 +139,7 @@ class csvToXmlConverter {
         $files = glob($sourceDir . "/*");
         $filesCount = 0;
 
-        echo "Running user CSV-to-XML conversion..." . PHP_EOL;
+        Logger::print("Running user CSV-to-XML conversion...");
 
         foreach ($files as $file) {
             $filesCount += 1;
@@ -131,7 +150,7 @@ class csvToXmlConverter {
             $xmlBuilder->buildXml();
         }
 
-        echo "Successfully converted {$filesCount} user file(s)." . PHP_EOL;
+        Logger::print("Successfully converted {$filesCount} user file(s).");
     }
 }
 

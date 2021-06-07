@@ -21,4 +21,7 @@ require('classes/DBManager.php');
 require('helpers/helpers.php');
 require ('classes/Config.php');
 
+require('classes/Debugger.php');
+require('classes/Logger.php');
+
 Config::load("config.ini");

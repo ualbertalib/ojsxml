@@ -22,15 +22,17 @@ class UsersXmlBuilder extends XMLBuilder {
      * Converts single csv file of users to import xml
      */
     public function buildXml() {
-        $this->getXmlWriter()->startElement("users");
+        $this->getXmlWriter()->startElement("PKPUsers");
         $this->getXmlWriter()->writeAttribute("xmlns", "http://pkp.sfu.ca");
         $this->getXmlWriter()->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         $this->getXmlWriter()->writeAttribute("xsi:schemaLocation", "http://pkp.sfu.ca pkp-users.xsd");
+        $this->getXmlWriter()->startElement("users");
 
         foreach ($this->_data as $userData) {
             $this->writeUser($userData);
         }
 
+        $this->getXmlWriter()->endElement();
         $this->getXmlWriter()->endElement();
 
         $this->getXmlWriter()->endDocument();
