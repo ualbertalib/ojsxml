@@ -251,9 +251,19 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         if (trim($articleData["fileName"] == "")) return;
 
-        $path = $this->_articleGalleysDir . $articleData["fileName"];
+		if( substr($articleData["fileName"],0,7)=="http://" || substr($articleData["fileName"],0,8)=="https://"){
+			$path =  $articleData["fileName"];
+		}else{
+			$path = $this->_articleGalleysDir . $articleData["fileName"];
+		}
+		
         $type = pathinfo($path, PATHINFO_EXTENSION);
-        $data = file_get_contents($path);
+			$filetype = "application/pdf";
+		if($type = 'html'){
+			$filetype = "text/html";
+		}
+		
+        $data = file_get_contents($path);		
         $articleGalleyBase64 = base64_encode($data);
 
         $this->getXmlWriter()->startElement("submission_file");
@@ -267,7 +277,9 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeAttribute("genre", "Article Text");
         $this->getXmlWriter()->writeAttribute("filename", $articleData["fileName"]);
         $this->getXmlWriter()->writeAttribute("viewable", "false");
-        $this->getXmlWriter()->writeAttribute("filetype", "application/pdf");
+		
+		
+        $this->getXmlWriter()->writeAttribute("filetype", $filetype);
         $this->getXmlWriter()->writeAttribute("uploader", $this->_user);
 
         $this->getXmlWriter()->startElement("name");
