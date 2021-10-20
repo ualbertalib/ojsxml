@@ -52,16 +52,16 @@ function getFiletype($ext){
     return $type;
 }
 /**
- * Returns the mime type based on the filename As per: https://stackoverflow.com/questions/35299457/getting-mime-type-from-file-name-in-php 
+ * Returns the mime type based on the filename As per: https://stackoverflow.com/questions/35299457/getting-mime-type-from-file-name-in-php
  * @param type $filename
- * @return string 
+ * @return string
  */
 function get_mime_type($filename) {
     $idx = explode( '.', $filename );
     $count_explode = count($idx);
     $idx = strtolower($idx[$count_explode-1]);
 
-    $mimet = array( 
+    $mimet = array(
         'txt' => 'text/plain',
         'htm' => 'text/html',
         'html' => 'text/html',
@@ -126,17 +126,19 @@ function get_mime_type($filename) {
      return 'application/octet-stream';
     }
  }
- 
+
 
 function userGroupRef($role){
     $role = trim($role);
-    if ($role == "Journal Manager") {
+    if ($role == "Journal manager") {
         return $role;
-    } else if ($role=='Section Editor'){
+    } else if ($role=='Section editor'){
         return $role;
     } else if ($role=='Reviewer'){
         return $role;
-    }else{
+    } else if ($role == 'Author') {
+        return $role;
+    } else{
         return "Reader";
     }
 
@@ -204,7 +206,7 @@ function csv_to_array($filename='', $delimiter=',')
  * @return string|string[]|null
  */
 function removeZeroWidthSpaces($text) {
-    return preg_replace( '/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $text );
+    return preg_replace( '/[\x{200B}-\x{200D}\x{FEFF}\x{00A0}]/u', '', $text );
 }
 
 function formatDateInRow(&$dataArray) {

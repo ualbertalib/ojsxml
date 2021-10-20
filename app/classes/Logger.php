@@ -31,9 +31,13 @@ class Logger {
 
 
     public static function writeOut($command, $user) {
-        $file = fopen(Config::get('logLocation') . '/' . $command . '_' . $user . '_'. self::$_fileName, 'w') or die('Unable to open file');
-        fwrite($file, self::formatToString(self::$messages));
-        fclose($file);
+        $file = fopen(Config::get('logLocation') . '/' . $command . '_' . $user . '_'. self::$_fileName, 'w');
+        if ($file !== false) {
+            fwrite($file, self::formatToString(self::$messages));
+            fclose($file);
+        } else {
+            echo 'Cannot write log to file' . PHP_EOL;
+        }
     }
 
     /**

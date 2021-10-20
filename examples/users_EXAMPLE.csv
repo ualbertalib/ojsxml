@@ -1,0 +1,3 @@
+firstname,lastname,email,affiliation,country,username,tempPassword,role1,role2,role3,role4,reviewInterests
+Homer,Simpson,email@email.ca,UBC,CA,hsimpson,temppassword123,Reader,Author,,,"interest one, interest two"
+Bart,Simpson,email2@email.ca,UBC,CA,bsimpson,temppassword123,Reader,,,,"interest two, interest three"

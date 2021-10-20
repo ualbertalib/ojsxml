@@ -7,6 +7,13 @@ namespace OJSXml;
 class UsersXmlBuilder extends XMLBuilder {
 
     private array $_data;
+    private bool $_isTest;
+
+    public function __construct($isTest, $filePath, &$dbManager = null) {
+        $this->_isTest = $isTest;
+        parent::__construct($filePath, $dbManager);
+    }
+
 
     /**
      * Set data to object used for creating xml
@@ -71,7 +78,11 @@ class UsersXmlBuilder extends XMLBuilder {
         }
 
         $this->getXmlWriter()->startElement("email");
-        $this->getXmlWriter()->writeRaw(htmlspecialchars($userData["email"]));
+        $firstEmail = explode(',', $userData["email"]);
+        if (sizeof($firstEmail) > 1) {
+            Logger::print($userData["username"] . ' email truncated to first provided.');
+        }
+        $this->getXmlWriter()->writeRaw($this->_isTest ? htmlspecialchars($firstEmail[0]) . "test" : htmlspecialchars($firstEmail[0]));
         $this->getXmlWriter()->endElement();
 
         $this->getXmlWriter()->startElement("username");
@@ -80,9 +91,12 @@ class UsersXmlBuilder extends XMLBuilder {
 
         $this->getXmlWriter()->startElement("password");
         $this->getXmlWriter()->writeAttribute("must_change", "true");
+        if (empty($userData["tempPassword"])) {
+            $this->getXmlWriter()->writeAttribute("encryption", "plaintext");
+        }
 
         $this->getXmlWriter()->startElement("value");
-        $this->getXmlWriter()->writeRaw($userData["tempPassword"]);
+        $this->getXmlWriter()->writeRaw(empty($userData["tempPassword"]) ? '' : $userData["tempPassword"]);
         $this->getXmlWriter()->endElement();
 
         $this->getXmlWriter()->endElement();
@@ -105,6 +119,12 @@ class UsersXmlBuilder extends XMLBuilder {
                 $this->getXmlWriter()->writeRaw(userGroupRef($userData["role" . $i]));
                 $this->getXmlWriter()->endElement();
             }
+        }
+
+        if (!empty($userData["reviewInterests"])) {
+            $this->getXmlWriter()->startElement("review_interests");
+            $this->getXmlWriter()->writeRaw($userData["reviewInterests"]);
+            $this->getXmlWriter()->endElement();
         }
 
         $this->getXmlWriter()->endElement();
