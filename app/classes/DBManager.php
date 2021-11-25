@@ -40,7 +40,7 @@ class DBManager {
      * @return int Issue count
      */
     public function getIssueCount() {
-        $issueCountQuery = "SELECT count( distinct issueTitle) as issueCount FROM " . $this->_temp_table_name;
+        $issueCountQuery = "SELECT count(*) as issueCount FROM (SELECT DISTINCT issueTitle, volume, issue FROM " . $this->_temp_table_name . ")";
         return $this->_db->single($issueCountQuery)['issueCount'];
 
     }
@@ -53,7 +53,7 @@ class DBManager {
      */
     public function getIssuesData($iteration) {
         $issues_per_file = Config::get('issues_per_file');
-        $q_getIssues = "SELECT trim(issueTitle) issueTitle, issue, year, Volume, datePublished, cover_image_filename, cover_image_alt_text FROM " . $this->_temp_table_name . " Group by issueTitle order by issueTitle limit " . ($iteration * $issues_per_file) ." ," . $issues_per_file;
+        $q_getIssues = "SELECT trim(issueTitle) as issueTitle, issue, year, volume, datePublished, cover_image_filename, cover_image_alt_text FROM " . $this->_temp_table_name . " Group by issueTitle, volume, issue order by volume limit " . ($iteration * $issues_per_file) ." ," . $issues_per_file;
         $this->_db->query($q_getIssues);
         return $this->_db->resultset();
     }
@@ -62,12 +62,28 @@ class DBManager {
      * Gets sections data for a given issue
      *
      * @param string $issueTitle
+     * @param string $volume
      * @return array Sections data
      */
-    public function getSectionsData($issueTitle) {
-        $q_getSection ="SELECT sectionTitle,sectionAbbrev FROM  " . $this->_temp_table_name . " WHERE trim(issueTitle) = :issueTitle group by sectionTitle, sectionAbbrev ";
+    public function getSectionsData($issueTitle, $volume, $issue) {
+        $volumeQueryPart = empty($volume) ? "" : " AND volume = :volume";
+        $issueQueryPart = empty($issue) ? "" : " AND issue = :issue";
+        $q_getSection ="SELECT sectionTitle,sectionAbbrev FROM  " . $this->_temp_table_name
+            . " WHERE (trim(issueTitle) = :issueTitle"
+            . $volumeQueryPart . $issueQueryPart . ") group by sectionTitle, sectionAbbrev ";
+
         $this->_db->query($q_getSection);
+
         $this->_db->bind(":issueTitle", trim($issueTitle));
+        if (!empty($volume)) { $this->_db->bind(":volume", $volume); }
+        if (!empty($issue)) { $this->_db->bind(":issue", $issue); }
+
+        return $this->_db->resultset();
+    }
+
+    public function getAllAbstracts() {
+        $q_getAbstracts = "SELECT volume, issue, articleTitle, articleAbstract FROM " . $this->_temp_table_name;
+        $this->_db->query($q_getAbstracts);
 
         return $this->_db->resultset();
     }
@@ -79,16 +95,23 @@ class DBManager {
      * @param string $sectionAbbrev
      * @return array
      */
-    public function getArticlesDataBySection($issueTitle, $sectionAbbrev) {
+    public function getArticlesDataBySection($issueTitle, $volume, $issue, $sectionAbbrev) {
+        $volumeQueryPart = empty($volume) ? "" : " AND trim(volume) = trim(:volume)";
+        $issueQueryPart = empty($issue) ? "" : " AND trim(issue) = trim(:issue)";
+
         $articlesBySectionQuery = "SELECT issueTitle, sectionTitle,sectionAbbrev, supplementary_files, 
-            dependent_files , authors, affiliations, DOI, articleTitle, subTitle, year, (datePublished) datePublished,	
+            dependent_files , authors, affiliations, DOI, articleTitle, subTitle, year, (datePublished) as datePublished,	
             volume, issue, startPage, COALESCE(endPage,'') as endPage,  articleAbstract as abstract, galleyLabel, 
             authorEmail, fileName, keywords, language
             FROM " . $this->_temp_table_name .
-            " WHERE trim(issueTitle) = trim(:issueTitle) and trim(sectionAbbrev) = trim(:sectionAbbrev)";
+            " WHERE trim(issueTitle) = trim(:issueTitle)"
+             . $volumeQueryPart . $issueQueryPart . "and trim(sectionAbbrev) = trim(:sectionAbbrev)";
         $this->_db->query($articlesBySectionQuery);
+
         $this->_db->bind(":issueTitle", $issueTitle);
         $this->_db->bind(":sectionAbbrev", $sectionAbbrev);
+        if (!empty($volume)) { $this->_db->bind(":volume", $volume); }
+        if (!empty($issue)) { $this->_db->bind(":issue", $issue); }
 
         return $this->_db->resultset();
     }
