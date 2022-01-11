@@ -50,7 +50,9 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->_issueIdPrefix = 10;
         foreach ($issuesData as $issueData) {
             $this->writeIssue($issueData);
-            echo "{$issueData["issueTitle"]} successfully converted" . PHP_EOL;
+
+            $issueMessage = empty($issueData['issue']) ? "" : ", Iss. ${issueData['issue']}";
+            Logger::print("Vol. {$issueData['volume']}{$issueMessage} - {$issueData["issueTitle"]} successfully converted");
             $this->_issueIdPrefix += 10;
         }
 
@@ -71,7 +73,7 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeAttribute("published", "1");
 
         $this->writeIssueMetadata($issueData);
-        $this->writeSections($issueData["issueTitle"]);
+        $this->writeSections($issueData["issueTitle"], $issueData["volume"], $issueData["issue"]);
         $this->writeIssueCover($issueData);
         $this->writeArticles($issueData);
 
@@ -118,9 +120,10 @@ class IssuesXmlBuilder extends XMLBuilder {
      * Handles sections and stores abbreviations for future use
      *
      * @param string $titleName Issue title
+     * @param string $volume Volume number
      */
-    function writeSections($titleName) {
-        $sectionsData = $this->getDBManager()->getSectionsData($titleName);
+    function writeSections($titleName, $volume, $issue) {
+        $sectionsData = $this->getDBManager()->getSectionsData($titleName, $volume, $issue);
 
         $this->getXmlWriter()->startElement("sections");
         foreach ($sectionsData as $sectionData) {
@@ -207,7 +210,12 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         // Populate articles by section
         foreach ($this->_sectionAbbreviations as $key => $sectionAbbrev) {
-            $articlesData = $this->getDBManager()->getArticlesDataBySection($issueData["issueTitle"], $sectionAbbrev);
+            $articlesData = $this->getDBManager()->getArticlesDataBySection(
+                $issueData["issueTitle"],
+                $issueData["volume"],
+                $issueData["issue"],
+                $sectionAbbrev
+            );
 
             foreach ($articlesData as $articleData) {
 
@@ -251,41 +259,31 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         if (trim($articleData["fileName"] == "")) return;
 
-		if( substr($articleData["fileName"],0,7)=="http://" || substr($articleData["fileName"],0,8)=="https://"){
-			$path =  $articleData["fileName"];
-		}else{
-			$path = $this->_articleGalleysDir . $articleData["fileName"];
-		}
-		
+        $path = $this->_articleGalleysDir . $articleData["fileName"];
+		$filesize = filesize($path);
         $type = pathinfo($path, PATHINFO_EXTENSION);
-			$filetype = "application/pdf";
-		if($type = 'html'){
-			$filetype = "text/html";
-		}
-		
-        $data = file_get_contents($path);		
+        $data = file_get_contents($path);
         $articleGalleyBase64 = base64_encode($data);
 
         $this->getXmlWriter()->startElement("submission_file");
         $this->getXmlWriter()->writeAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
-        $this->getXmlWriter()->writeAttribute("stage", "proof");
         $this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
+		$this->getXmlWriter()->writeAttribute("file_id", $articleData["currentId"]);
+        $this->getXmlWriter()->writeAttribute("stage", "proof");
+        $this->getXmlWriter()->writeAttribute("viewable", "false");
+        $this->getXmlWriter()->writeAttribute("genre", $this->_getGenreName());
+        $this->getXmlWriter()->writeAttribute("uploader", $this->_user);
         $this->getXmlWriter()->writeAttribute("xsi:schemaLocation", "http://pkp.sfu.ca native.xsd");
 
-        $this->getXmlWriter()->startElement("revision");
-        $this->getXmlWriter()->writeAttribute("number", "1");
-        $this->getXmlWriter()->writeAttribute("genre", "Article Text");
-        $this->getXmlWriter()->writeAttribute("filename", $articleData["fileName"]);
-        $this->getXmlWriter()->writeAttribute("viewable", "false");
-		
-		
-        $this->getXmlWriter()->writeAttribute("filetype", $filetype);
-        $this->getXmlWriter()->writeAttribute("uploader", $this->_user);
-
-        $this->getXmlWriter()->startElement("name");
+		$this->getXmlWriter()->startElement("name");
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw($this->_user . ", " . $articleData["fileName"]);
         $this->getXmlWriter()->endElement();
+
+        $this->getXmlWriter()->startElement("file");
+		$this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
+		$this->getXmlWriter()->writeAttribute("filesize", $filesize);
+		$this->getXmlWriter()->writeAttribute("extension", $type);
 
         $this->getXmlWriter()->startElement("embed");
         $this->getXmlWriter()->writeAttribute("encoding", "base64");
@@ -465,7 +463,6 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         $this->getXmlWriter()->startElement("submission_file_ref");
         $this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
-        $this->getXmlWriter()->writeAttribute("revision", "1");
         $this->getXmlWriter()->endElement();
 
         // Disabled for OJS 3.2
@@ -502,5 +499,13 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeAttribute("advice", "ignore");
         $this->getXmlWriter()->writeRaw($currentId);
         $this->getXmlWriter()->endElement();
+    }
+
+    function _getGenreName() {
+        $customFileGenre = Config::get('genreName');
+        if (!empty($customFileGenre)) {
+            return $customFileGenre;
+        }
+        return 'Article Text';
     }
 }
