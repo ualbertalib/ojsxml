@@ -1,4 +1,4 @@
-# CSV to OJS XML Import for OJS 3.2.1
+# CSV to OJS XML Import for OJS 3.3.0
 This application will convert a CSV file into the OJS XML native import file.
 The XSD is included with this project in the `docroot/output` directory.
 Sample CSV files for both users and issues are included in the `examples`
@@ -8,7 +8,7 @@ Note: This is NOT a comprehensive CSV to OJS XML conversion, and many fields are
 
 ## Known Issues
 
-* Each issue export XML file can contain __only one issue__. This is a current limitation with the OJS 3.2 issue importer. Multiple issues/XML file can lead to database corruption.
+* Each issue export XML file can contain __only one issue__. This is a current limitation with the OJS 3.3 issue importer. Multiple issues/XML file can lead to database corruption.
 * The journal's current issue must be manually set upon import completion. This conversion tool does not indicate which issue should be the current one.
 * The `user_groups` section of the User XML must be manually added and is journal specific. This can be found at the top of a User export XML from the current journal (see below for example).
 * CSV files should be UTF8 encoded or non-ASCII characters will not appear correctly

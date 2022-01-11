@@ -260,28 +260,30 @@ class IssuesXmlBuilder extends XMLBuilder {
         if (trim($articleData["fileName"] == "")) return;
 
         $path = $this->_articleGalleysDir . $articleData["fileName"];
+		$filesize = filesize($path);
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
         $articleGalleyBase64 = base64_encode($data);
 
         $this->getXmlWriter()->startElement("submission_file");
         $this->getXmlWriter()->writeAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
-        $this->getXmlWriter()->writeAttribute("stage", "proof");
         $this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
+		$this->getXmlWriter()->writeAttribute("file_id", $articleData["currentId"]);
+        $this->getXmlWriter()->writeAttribute("stage", "proof");
+        $this->getXmlWriter()->writeAttribute("viewable", "false");
+        $this->getXmlWriter()->writeAttribute("genre", $this->_getGenreName());
+        $this->getXmlWriter()->writeAttribute("uploader", $this->_user);
         $this->getXmlWriter()->writeAttribute("xsi:schemaLocation", "http://pkp.sfu.ca native.xsd");
 
-        $this->getXmlWriter()->startElement("revision");
-        $this->getXmlWriter()->writeAttribute("number", "1");
-        $this->getXmlWriter()->writeAttribute("genre", $this->_getGenreName());
-        $this->getXmlWriter()->writeAttribute("filename", $articleData["fileName"]);
-        $this->getXmlWriter()->writeAttribute("viewable", "false");
-        $this->getXmlWriter()->writeAttribute("filetype", "application/pdf");
-        $this->getXmlWriter()->writeAttribute("uploader", $this->_user);
-
-        $this->getXmlWriter()->startElement("name");
+		$this->getXmlWriter()->startElement("name");
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw($this->_user . ", " . $articleData["fileName"]);
         $this->getXmlWriter()->endElement();
+
+        $this->getXmlWriter()->startElement("file");
+		$this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
+		$this->getXmlWriter()->writeAttribute("filesize", $filesize);
+		$this->getXmlWriter()->writeAttribute("extension", $type);
 
         $this->getXmlWriter()->startElement("embed");
         $this->getXmlWriter()->writeAttribute("encoding", "base64");
@@ -461,7 +463,6 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         $this->getXmlWriter()->startElement("submission_file_ref");
         $this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
-        $this->getXmlWriter()->writeAttribute("revision", "1");
         $this->getXmlWriter()->endElement();
 
         // Disabled for OJS 3.2
