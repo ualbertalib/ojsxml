@@ -44,7 +44,10 @@ class TempTable
 
 
     private function createTable(){
-
+		
+		$this->db->query("DROP TABLE IF EXISTS " . $this->tempTableName );
+		$this->db->execute();
+		
         $sql = "CREATE TABLE IF NOT EXISTS " . $this->tempTableName . " (      
                       `issueTitle` varchar(500)  DEFAULT NULL,
                       `sectionTitle` varchar(500)  DEFAULT NULL,
@@ -67,6 +70,7 @@ class TempTable
                       `supplementary_files` varchar(500)  DEFAULT NULL,                      
                       `dependent_files` varchar(500)  DEFAULT NULL,   
                       `keywords` varchar(500)  DEFAULT NULL,
+					  `citations` TEXT  DEFAULT NULL, 
                       `cover_image_filename` varchar(500) DEFAULT NULL,
                       `cover_image_alt_text` varchar(500) DEFAULT NULL,
                       `language` varchar(10) DEFAULT NULL
@@ -84,10 +88,10 @@ class TempTable
 
         $sql = "INSERT into  " . $this->tempTableName . "
                               (issueTitle,sectionTitle,sectionAbbrev,authors,affiliations,DOI,articleTitle,subTitle,`year`,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,
-                              authorEmail,fileName,supplementary_files,dependent_files,keywords,cover_image_filename,cover_image_alt_text,language) 
+                              authorEmail,fileName,supplementary_files,dependent_files,keywords,citations,cover_image_filename,cover_image_alt_text,language) 
                                 VALUES (:issueTitle,:sectionTitle,:sectionAbbrev,:authors,:affiliations,:DOI, :articleTitle,:subTitle,:year,:datePublished,
                                 :volume,:issue,:startPage,:endPage, :articleAbstract,:galleyLabel, 
-                              :authorEmail,:fileName,:supplementary_files,:dependent_files,:keywords,:cover_image_filename,:cover_image_alt_text,:language)";
+                              :authorEmail,:fileName,:supplementary_files,:dependent_files,:keywords,:citations,:cover_image_filename,:cover_image_alt_text,:language)";
         $this->db->query($sql);
         $this->db->bind(':issueTitle', $data['issueTitle']??'');
         $this->db->bind(':sectionTitle', $data['sectionTitle']);
@@ -125,6 +129,13 @@ class TempTable
             $val = $data['keywords'];
         }
         $this->db->bind(':keywords',$val);
+		
+		$cval = "";
+        if(key_exists('citations',$data)){
+            $cval = $data['citations'];
+        }
+        
+		$this->db->bind(':citations',$cval);
         $this->db->bind(':cover_image_filename', $data['cover_image_filename']??'');
         $this->db->bind(':cover_image_alt_text', $data['cover_image_alt_text']??'');
         $this->db->bind(':language', $data['language']??'');

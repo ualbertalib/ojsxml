@@ -102,7 +102,7 @@ class DBManager {
         $articlesBySectionQuery = "SELECT issueTitle, sectionTitle,sectionAbbrev, supplementary_files, 
             dependent_files , authors, affiliations, DOI, articleTitle, subTitle, year, (datePublished) as datePublished,	
             volume, issue, startPage, COALESCE(endPage,'') as endPage,  articleAbstract as abstract, galleyLabel, 
-            authorEmail, fileName, keywords, language
+            authorEmail, fileName, keywords, language, citations
             FROM " . $this->_temp_table_name .
             " WHERE trim(issueTitle) = trim(:issueTitle)"
              . $volumeQueryPart . $issueQueryPart . "and trim(sectionAbbrev) = trim(:sectionAbbrev)";

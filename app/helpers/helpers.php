@@ -28,6 +28,13 @@ function parseSemiColon($keywords){
     return explode(";",$keywords);
 }
 
+// split each line into an array
+function parseNewLine($citations){
+    $citationArray = preg_split("/\\r\\n|\\r|\\n/", $citations,-1,PREG_SPLIT_NO_EMPTY);
+
+    return $citationArray;
+}
+
 function xmlFormat($string_from_hell){
     $string_from_hell  = htmlspecialchars($string_from_hell, ENT_QUOTES, "UTF-8");
     $string_from_hell = str_replace('—','&#8212;',$string_from_hell);

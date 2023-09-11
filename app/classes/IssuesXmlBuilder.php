@@ -51,7 +51,7 @@ class IssuesXmlBuilder extends XMLBuilder {
         foreach ($issuesData as $issueData) {
             $this->writeIssue($issueData);
 
-            $issueMessage = empty($issueData['issue']) ? "" : ", Iss. ${issueData['issue']}";
+            $issueMessage = empty($issueData['issue']) ? "" : ", Iss. {$issueData['issue']}";
             Logger::print("Vol. {$issueData['volume']}{$issueMessage} - {$issueData["issueTitle"]} successfully converted");
             $this->_issueIdPrefix += 10;
         }
@@ -316,6 +316,9 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->writePublicationMetadata($articleData);
         $this->writeAuthors($articleData);
         $this->writeArticleGalley($articleData);
+		
+		$this->writeCitations($articleData["citations"]);
+		
 
         $this->getXmlWriter()->startElement("pages");
         $this->getXmlWriter()->writeRaw(trim($articleData["pages"], "-"));
@@ -323,6 +326,24 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         $this->getXmlWriter()->endElement();
     }
+	
+	
+	function writeCitations($citationString){
+		
+		if ($citationString != "") {
+            $citations = parseNewLine($citationString);
+            $this->getXmlWriter()->startElement("citations");
+            $this->addLocaleAttribute();
+            foreach ($citations as $citation) {
+                $this->getXmlWriter()->startElement("citation");
+                $this->getXmlWriter()->writeRaw(xmlFormat(trim($citation)));
+                $this->getXmlWriter()->endElement();
+            }
+            $this->getXmlWriter()->endElement();
+        }
+		
+	}
+	
 
     /**
      * Writes out publication metadata, including, title, abstract, keywords, etc.
@@ -368,6 +389,11 @@ class IssuesXmlBuilder extends XMLBuilder {
             }
             $this->getXmlWriter()->endElement();
         }
+		
+		
+		
+		
+		
     }
 
     /**
