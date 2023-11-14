@@ -32,7 +32,7 @@ php csvToXmlConverter issues username ./input_directory ./output_directory
 
 #### Description
 The CSV must be in the format of:
-issueTitle,sectionTitle,sectionAbbrev,authors,affiliation,DOI,articleTitle,year,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,authorEmail,fileName,keywords,citations,cover_image_filename,cover_image_alt_text
+issueTitle,sectionTitle,sectionAbbrev,authors,affiliation,DOI,articleTitle,year,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,authorEmail,fileName,keywords,citations,cover_image_filename,cover_image_alt_text,licenseUrl,copyrightHolder,copyrightYear
 
 You can have multiple authors in the "authors" field by separating them with a semi-colon.
 Also, use a comma to separating first and last names.

@@ -377,6 +377,21 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["abstract"])));
         $this->getXmlWriter()->endElement();
+		
+		$this->getXmlWriter()->startElement("licenseUrl");        
+        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["licenseUrl"])));
+        $this->getXmlWriter()->endElement();
+		
+		$this->getXmlWriter()->startElement("copyrightHolder"); 
+		$this->addLocaleAttribute();
+        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightHolder"])));
+        $this->getXmlWriter()->endElement();
+		
+		$this->getXmlWriter()->startElement("copyrightYear");        
+        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightYear"])));
+        $this->getXmlWriter()->endElement();
+		
+		
 
         if (semiColonFix($articleData["keywords"] != "")) {
             $keywordArray = parseSemiColon($articleData["keywords"]);

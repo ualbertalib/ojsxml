@@ -73,7 +73,11 @@ class TempTable
 					  `citations` TEXT  DEFAULT NULL, 
                       `cover_image_filename` varchar(500) DEFAULT NULL,
                       `cover_image_alt_text` varchar(500) DEFAULT NULL,
-                      `language` varchar(10) DEFAULT NULL
+                      `language` varchar(10) DEFAULT NULL,
+					  `licenseUrl` varchar(500) DEFAULT NULL,
+					  `copyrightHolder` varchar(500) DEFAULT NULL,
+					  `copyrightYear` varchar(50) DEFAULT NULL
+					  
                     )";
 
         $this->db->query($sql);
@@ -88,10 +92,10 @@ class TempTable
 
         $sql = "INSERT into  " . $this->tempTableName . "
                               (issueTitle,sectionTitle,sectionAbbrev,authors,affiliations,DOI,articleTitle,subTitle,`year`,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,
-                              authorEmail,fileName,supplementary_files,dependent_files,keywords,citations,cover_image_filename,cover_image_alt_text,language) 
+                              authorEmail,fileName,supplementary_files,dependent_files,keywords,citations,cover_image_filename,cover_image_alt_text,language,licenseUrl,copyrightHolder,copyrightYear) 
                                 VALUES (:issueTitle,:sectionTitle,:sectionAbbrev,:authors,:affiliations,:DOI, :articleTitle,:subTitle,:year,:datePublished,
                                 :volume,:issue,:startPage,:endPage, :articleAbstract,:galleyLabel, 
-                              :authorEmail,:fileName,:supplementary_files,:dependent_files,:keywords,:citations,:cover_image_filename,:cover_image_alt_text,:language)";
+                              :authorEmail,:fileName,:supplementary_files,:dependent_files,:keywords,:citations,:cover_image_filename,:cover_image_alt_text,:language,:licenseUrl,:copyrightHolder,:copyrightYear)";
         $this->db->query($sql);
         $this->db->bind(':issueTitle', $data['issueTitle']??'');
         $this->db->bind(':sectionTitle', $data['sectionTitle']);
@@ -139,6 +143,9 @@ class TempTable
         $this->db->bind(':cover_image_filename', $data['cover_image_filename']??'');
         $this->db->bind(':cover_image_alt_text', $data['cover_image_alt_text']??'');
         $this->db->bind(':language', $data['language']??'');
+		$this->db->bind(':licenseUrl', $data['licenseUrl']??'');
+		$this->db->bind(':copyrightHolder', $data['copyrightHolder']??'');
+		$this->db->bind(':copyrightYear', $data['copyrightYear']??'');
         
         $this->db->execute();
     }
