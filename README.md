@@ -45,7 +45,7 @@ If there is only 1 affiliation and multiple authors that 1 affiliation will be a
 citations can be seperated with a new line.
 
 The following fields are optional and can be left empty:
-DOI, volume, issue, subtitle, keywords, citations, affiliation, cover image (both cover_image_filename and cover_image_alt_text must be included or omitted),
+DOI, volume, issue, subtitle, keywords, citations, affiliation, cover image (both cover_image_filename and cover_image_alt_text must be included or omitted),licenseUrl,copyrightHolder,copyrightYear
 
 #### Instructions
 
