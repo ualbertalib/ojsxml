@@ -387,9 +387,11 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightHolder"])));
         $this->getXmlWriter()->endElement();
 		
-		$this->getXmlWriter()->startElement("copyrightYear");        
-        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightYear"])));
-        $this->getXmlWriter()->endElement();
+		if(trim($articleData["copyrightYear"]) != ""){
+			$this->getXmlWriter()->startElement("copyrightYear");        
+			$this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightYear"])));
+			$this->getXmlWriter()->endElement();
+		}
 		
 		
 
