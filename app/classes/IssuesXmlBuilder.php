@@ -108,7 +108,13 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw(xmlFormat($issueData["issueTitle"]));
         $this->getXmlWriter()->endElement();
-
+		
+		if(trim($issueData["issueTitle_2"])!=''){
+		$this->getXmlWriter()->startElement("title");
+        $this->addLocaleAttribute($issueData["locale_2"]);
+        $this->getXmlWriter()->writeRaw(xmlFormat($issueData["issueTitle_2"]));
+        $this->getXmlWriter()->endElement();
+		}
         $this->getXmlWriter()->endElement();
 
         $this->getXmlWriter()->startElement("date_published");
@@ -157,7 +163,13 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw(xmlFormat($sectionData["sectionTitle"]));
         $this->getXmlWriter()->endElement();
-
+		
+		if($sectionData["sectionTitle_2"] != ''){
+			$this->getXmlWriter()->startElement("title");
+			$this->addLocaleAttribute($sectionData["locale_2"]);
+			$this->getXmlWriter()->writeRaw(xmlFormat($sectionData["sectionTitle_2"]));
+			$this->getXmlWriter()->endElement();
+		}
         $this->getXmlWriter()->endElement();
     }
 
@@ -365,6 +377,13 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["articleTitle"])));
         $this->getXmlWriter()->endElement();
+		
+		if($articleData["articleTitle_2"] != ''){
+			$this->getXmlWriter()->startElement("title");
+			$this->addLocaleAttribute($articleData["locale_2"]);
+			$this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["articleTitle_2"])));
+			$this->getXmlWriter()->endElement();
+		}
 
         if (trim($articleData["subTitle"]) != "") {
             $this->getXmlWriter()->startElement("subtitle");
@@ -377,6 +396,15 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->addLocaleAttribute();
         $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["abstract"])));
         $this->getXmlWriter()->endElement();
+		
+		if($articleData["articleAbstract_2"] != ''){
+			$this->getXmlWriter()->startElement("abstract");
+			$this->addLocaleAttribute($articleData["locale_2"]);
+			$this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["articleAbstract_2"])));
+			$this->getXmlWriter()->endElement();
+		}
+		
+		
 		
 		$this->getXmlWriter()->startElement("licenseUrl");        
         $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["licenseUrl"])));

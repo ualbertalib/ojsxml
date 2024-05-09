@@ -32,7 +32,7 @@ php csvToXmlConverter issues username ./input_directory ./output_directory
 
 #### Description
 The CSV must be in the format of:
-issueTitle,sectionTitle,sectionAbbrev,authors,affiliation,DOI,articleTitle,year,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,authorEmail,fileName,keywords,citations,cover_image_filename,cover_image_alt_text,licenseUrl,copyrightHolder,copyrightYear
+issueTitle,sectionTitle,sectionAbbrev,authors,affiliation,DOI,articleTitle,year,datePublished,volume,issue,startPage,endPage,articleAbstract,galleyLabel,authorEmail,fileName,keywords,citations,cover_image_filename,cover_image_alt_text,licenseUrl,copyrightHolder,copyrightYear,locale_2,issueTitle_2,sectionTitle_2,articleTitle_2,articleAbstract_2
 
 You can have multiple authors in the "authors" field by separating them with a semi-colon.
 Also, use a comma to separating first and last names.
@@ -45,7 +45,12 @@ If there is only 1 affiliation and multiple authors that 1 affiliation will be a
 citations can be seperated with a new line.
 
 The following fields are optional and can be left empty:
-DOI, volume, issue, subtitle, keywords, citations, affiliation, cover image (both cover_image_filename and cover_image_alt_text must be included or omitted),licenseUrl,copyrightHolder,copyrightYear
+DOI, volume, issue, subtitle, keywords, citations, affiliation, cover image (both cover_image_filename and cover_image_alt_text must be included or omitted),licenseUrl,copyrightHolder,copyrightYear,locale_2,issueTitle_2,sectionTitle_2,articleTitle_2,articleAbstract_2
+
+####Update May 2024
+Added extra fields for basic multilingual support. The extra fields are: locale_2,issueTitle_2,sectionTitle_2,articleTitle_2,articleAbstract_2 
+locale_2 should use the same format (ie fr_CA) that ojs uses for it's Locale field.
+
 
 #### Instructions
 

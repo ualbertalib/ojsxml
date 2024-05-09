@@ -51,8 +51,14 @@ abstract class XMLBuilder {
         return $this->_dbManager;
     }
 
-    protected function addLocaleAttribute() {
-        $this->_xmlWriter->writeAttribute("locale", $this->_locale);
+    protected function addLocaleAttribute($locale = null) {
+		// override the default locale if it is passed
+		if (! is_null($locale)){
+			$this->_xmlWriter->writeAttribute("locale", $locale);
+		}else{
+			$this->_xmlWriter->writeAttribute("locale", $this->_locale);
+		}
+		
     }
 
 }
