@@ -47,7 +47,7 @@ citations can be seperated with a new line.
 The following fields are optional and can be left empty:
 DOI, volume, issue, subtitle, keywords, citations, affiliation, cover image (both cover_image_filename and cover_image_alt_text must be included or omitted),licenseUrl,copyrightHolder,copyrightYear,locale_2,issueTitle_2,sectionTitle_2,articleTitle_2,articleAbstract_2
 
-####Update May 2024
+#### Update May 2024
 Added extra fields for basic multilingual support. The extra fields are: locale_2,issueTitle_2,sectionTitle_2,articleTitle_2,articleAbstract_2 
 locale_2 should use the same format (ie fr_CA) that ojs uses for it's Locale field.
 
