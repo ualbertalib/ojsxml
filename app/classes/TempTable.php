@@ -128,7 +128,8 @@ class TempTable
         $this->db->bind(':issue', $data['issue'] ?? $data['Issue']);
         $this->db->bind(':startPage', $data['startPage']);
         $this->db->bind(':endPage', $data['endPage']);
-        $this->db->bind(':articleAbstract', $data['articleAbstract']);
+		$articleAbstract = isset($data['articleAbstract']) ? $data['articleAbstract'] : "";
+        $this->db->bind(':articleAbstract', $articleAbstract);
         $this->db->bind(':galleyLabel', $data['galleyLabel']);
         $this->db->bind(':authorEmail', $data['authorEmail']);
         $this->db->bind(':fileName', $data['fileName']);

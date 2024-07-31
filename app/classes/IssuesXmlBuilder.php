@@ -385,7 +385,7 @@ class IssuesXmlBuilder extends XMLBuilder {
 			$this->getXmlWriter()->endElement();
 		}
 
-        if (trim($articleData["subTitle"]) != "") {
+        if (isset($articleData["subTitle"]) && trim($articleData["subTitle"]) != "") {
             $this->getXmlWriter()->startElement("subtitle");
             $this->addLocaleAttribute();
             $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["subTitle"])));
@@ -394,14 +394,14 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         $this->getXmlWriter()->startElement("abstract");
         $this->addLocaleAttribute();
-        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["abstract"])));
+        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["abstract"])??'')));
         $this->getXmlWriter()->endElement();
 		
 		if($articleData["articleAbstract_2"] != ''){
 			$this->getXmlWriter()->startElement("abstract");
 			$this->addLocaleAttribute($articleData["locale_2"]);
-			$this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["articleAbstract_2"])));
-			$this->getXmlWriter()->endElement();
+			$this->getXmlWriter()->writeRaw(xmlFormat( trim($articleData["articleAbstract_2"]) ));
+			$this->getXmlWriter()->endElement(); 
 		}
 		
 		
