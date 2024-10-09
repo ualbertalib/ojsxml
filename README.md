@@ -1,4 +1,4 @@
-# CSV to OJS XML Import for OJS 3.3.0
+# CSV to OJS XML Import for OJS 3.3.0 (and 3.4, sort of)
 This application will convert a CSV file into the OJS XML native import file.
 The XSD is included with this project in the `docroot/output` directory.
 Sample CSV files for both users and issues are included in the `examples`
