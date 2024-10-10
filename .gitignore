@@ -4,3 +4,4 @@ docroot/output/*.xml
 *.db
 
 /docroot/csv/abstracts/*.csv
+/docroot/csv/*
