@@ -3,15 +3,76 @@
 
 namespace OJSXml;
 
+use DOMDocument;
+use DOMXPath;
+use RuntimeException;
+use UnexpectedValueException;
 
 class UsersXmlBuilder extends XMLBuilder {
 
     private array $_data;
     private bool $_isTest;
+    private string $_userGroupsXml;
+    private array $_userGroupNames = array();
 
-    public function __construct($isTest, $filePath, &$dbManager = null) {
+    public function __construct($isTest, $filePath, $userGroupsFile, &$dbManager = null) {
         $this->_isTest = $isTest;
+        $this->loadUserGroups($userGroupsFile);
         parent::__construct($filePath, $dbManager);
+    }
+
+    /**
+     * Load the journal-specific user groups from an OJS 3.5 user export.
+     *
+     * @param string $filePath Full PKPUsers export or standalone user_groups XML
+     */
+    private function loadUserGroups($filePath) {
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new RuntimeException("The OJS 3.5 user groups XML file is not readable: {$filePath}");
+        }
+
+        $document = new DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $loaded = $document->load($filePath, LIBXML_NONET | LIBXML_NOBLANKS);
+        $errors = libxml_get_errors();
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        if (!$loaded) {
+            $message = empty($errors) ? "Invalid XML" : trim($errors[0]->message);
+            throw new RuntimeException("Unable to read user groups XML: {$message}");
+        }
+
+        $xpath = new DOMXPath($document);
+        $nodes = $xpath->query("//*[local-name()='user_groups'][1]");
+        if ($nodes->length !== 1) {
+            throw new RuntimeException("The user groups XML must contain one user_groups element.");
+        }
+
+        $userGroupsNode = $nodes->item(0);
+        $this->_userGroupsXml = $document->saveXML($userGroupsNode);
+
+        $groupNodes = $xpath->query("./*[local-name()='user_group']", $userGroupsNode);
+        foreach ($groupNodes as $groupNode) {
+            $mastheadNodes = $xpath->query("./*[local-name()='masthead']", $groupNode);
+            if ($mastheadNodes->length !== 1) {
+                throw new RuntimeException(
+                    "Each OJS 3.5 user_group definition must contain one masthead element."
+                );
+            }
+        }
+
+        $nameNodes = $xpath->query("./*[local-name()='user_group']/*[local-name()='name']", $userGroupsNode);
+        foreach ($nameNodes as $nameNode) {
+            $name = trim($nameNode->textContent);
+            if ($name !== "") {
+                $this->_userGroupNames[$name] = true;
+            }
+        }
+
+        if (empty($this->_userGroupNames)) {
+            throw new RuntimeException("The user_groups element does not define any named groups.");
+        }
     }
 
 
@@ -33,6 +94,7 @@ class UsersXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeAttribute("xmlns", "http://pkp.sfu.ca");
         $this->getXmlWriter()->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         $this->getXmlWriter()->writeAttribute("xsi:schemaLocation", "http://pkp.sfu.ca pkp-users.xsd");
+        $this->getXmlWriter()->writeRaw($this->_userGroupsXml);
         $this->getXmlWriter()->startElement("users");
 
         foreach ($this->_data as $userData) {
@@ -66,8 +128,10 @@ class UsersXmlBuilder extends XMLBuilder {
 
         if (!empty($userData["affiliation"])) {
             $this->getXmlWriter()->startElement("affiliation");
+            $this->getXmlWriter()->startElement("name");
             $this->addLocaleAttribute();
-            $this->getXmlWriter()->writeRaw($userData["affiliation"]);
+            $this->getXmlWriter()->writeRaw(xmlFormat($userData["affiliation"]));
+            $this->getXmlWriter()->endElement();
             $this->getXmlWriter()->endElement();
         }
 
@@ -113,11 +177,27 @@ class UsersXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeRaw("true");
         $this->getXmlWriter()->endElement();
 
+        $assignedRoles = array();
         for ($i = 1; $i < 6; $i++) {
             if (isset($userData["role" . $i]) && $userData["role" . $i] != "") {
+                $role = trim($userData["role" . $i]);
+                if (isset($assignedRoles[$role])) continue;
+                if (!isset($this->_userGroupNames[$role])) {
+                    throw new UnexpectedValueException(
+                        "Unknown user group '{$role}' for user '{$userData["username"]}'. " .
+                        "Use a group name from the supplied OJS user export."
+                    );
+                }
+
+                $this->getXmlWriter()->startElement("user_user_group");
                 $this->getXmlWriter()->startElement("user_group_ref");
-                $this->getXmlWriter()->writeRaw(userGroupRef($userData["role" . $i]));
+                $this->getXmlWriter()->writeRaw(xmlFormat($role));
                 $this->getXmlWriter()->endElement();
+                $this->getXmlWriter()->startElement("masthead");
+                $this->getXmlWriter()->writeRaw("false");
+                $this->getXmlWriter()->endElement();
+                $this->getXmlWriter()->endElement();
+                $assignedRoles[$role] = true;
             }
         }
 

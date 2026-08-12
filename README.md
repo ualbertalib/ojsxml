@@ -1,4 +1,4 @@
-# CSV to OJS XML Import for OJS 3.3.0
+# CSV to OJS XML Import for OJS 3.5
 This application will convert a CSV file into the OJS XML native import file.
 The XSD is included with this project in the `docroot/output` directory.
 Sample CSV files for both users and issues are included in the `examples`
@@ -8,24 +8,25 @@ Note: This is NOT a comprehensive CSV to OJS XML conversion, and many fields are
 
 ## Known Issues
 
-* Each issue export XML file can contain __only one issue__. This is a current limitation with the OJS 3.3 issue importer. Multiple issues/XML file can lead to database corruption.
+* The converter defaults to one issue per XML file. This can be adjusted with `issues_per_file` in `config.ini` after testing against the target journal.
 * The journal's current issue must be manually set upon import completion. This conversion tool does not indicate which issue should be the current one.
-* The `user_groups` section of the User XML must be manually added and is journal specific. This can be found at the top of a User export XML from the current journal (see below for example).
-* CSV files should be UTF8 encoded or non-ASCII characters will not appear correctly
+* User-group definitions are journal-specific. User conversion therefore requires an OJS 3.5 user export from the target journal.
+* CSV files must be UTF-8 encoded.
 
 ## How to Use
 
 From the CLI `--help` command:
 ```bash
 Script to convert issue or user CSV data to OJS XML.
-Usage: issues|users|users:test <ojs_username> <source_directory> <destination_directory>
+Usage: issues <ojs_username> <source_directory> <destination_directory>
+       users|users:test <ojs_username> <source_directory> <destination_directory> [user_groups_xml]
 NB: issues source directory must include "issue_cover_images" and "article_galleys" directory
-user:test appends "test" to user email addresses
+users:test appends "test" to user email addresses
 ```
 
 Example:
 ```bash
-php csvToXmlConverter issues username ./input_directory ./output_directory
+php csvToXmlConverter.php issues username ./input_directory ./output_directory
 ```
 
 ### Issue CSVs
@@ -54,14 +55,14 @@ locale_2 should use the same format (ie fr_CA) that ojs uses for it's Locale fie
 
 #### Instructions
 
-1. Set up the variables in the config.ini file.
+1. Install PHP with the `dom`, `xmlwriter`, and `sqlite3` extensions, then set up `config.ini`.
 2. Place CSV file(s) in a single directory (optionally `docroot/csv/abstracts`, which has already been created)
    * The `abstracts` input directory must contain an `article_galleys` and `issue_cover_images` directory (both of which exist within `docroot/csv/abstracts`)
    * You can place multiple csv files in the directory however do not split a single issue across multiple csv files, but you can have multiple issues in a single csv file.
 3. Place all PDF galleys in the `article_galleys` directory
 4. If you have cover images place them in the `issue_cover_images` directory
-4. Run `php csvToXmlConverter.php issues ojs_username ./docroot/csv/abstracts ./docroot/output`
-5. The XML file(s) will be output in the specified output directory (`docroot/output` directory in this case)
+4. Run `php csvToXmlConverter.php issues ojs_username ./docroot/csv/abstracts ./docroot/output`.
+5. The XML files will be written to the specified output directory.
 
 ### User CSVs
 
@@ -80,49 +81,32 @@ NB: If a temporary password is not supplied, a new password will be created and 
 
 #### Instructions
 
-1. Set up the variables in the config.ini file.
-2. Place CSV file(s) in a single directory (optionally `docroot/csv/users`)
-3. Run `php csvToXmlConverter.php users ojs_username ./docroot/csv/users ./docroot/output`
-4. The XML file(s) will be output in the specified output directory (`docroot/output` directory in this case)
-5. Add the `user_groups` section from a User export from the journal to the newly created XML file(s).
+1. Export users from the target OJS 3.5 journal:
+   1. Sign in as a Journal Manager or Administrator.
+   2. Open the journal dashboard and go to **Tools > Import/Export**.
+   3. Select **Users XML Plugin**.
+   4. Choose **Export All**, or select one or more users and export them.
+   5. Download the resulting XML file. It contains the journal-specific `<user_groups>` definitions required for import.
+2. Place CSV files in one directory, such as `docroot/csv/users`.
+3. Pass the complete OJS user export directly to the converter:
 
-The `user_groups` section of the XML is specific to each journal and should therefore be taken from a sample user export from the intended journal. Any role added in the import CSV must match the `name` tag for the given user group or it will default to `Reader`.
+   ```bash
+   php csvToXmlConverter.php users ojs_username ./docroot/csv/users ./docroot/output ./user_groups.xml
+   ```
 
-Current valid roles include:
-- Journal manager
-- Section editor
-- Reviewer
-- Author
-- Reader
+   The converter extracts `<user_groups>` and does not copy the exported `<users>` into its output. You may instead set `user_groups_file` in `config.ini` and omit the final argument.
+4. Import the generated XML from `docroot/output` into the same target journal.
 
-The user export XML should be in the following format:
+Each CSV role must exactly match a localized `<name>` in the supplied user export. Unknown roles stop conversion with an error instead of silently assigning `Reader`. OJS 3.5 user-group associations, including the required `masthead` value, are generated automatically.
 
-```xml
-<?xml version="1.0"?>
-<PKPUsers xmlns="http://pkp.sfu.ca" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://pkp.sfu.ca pkp-users.xsd">
-  <user_groups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="http://pkp.sfu.ca pkp-users.xsd">
-    [... add journal specific user groups here]
-  </user_groups>
-  <users>
-    [...generated by conversion tool]
-  </users>
-</PKPUsers>
+OJS user exports can contain names, email addresses, and password hashes. Keep the source export outside this repository, restrict access to it, and delete it when it is no longer needed.
+
+## Validation
+
+The bundled schemas are pinned to official OJS 3.5 source revisions; see `docroot/output/SCHEMA_VERSION.md`. Run the end-to-end schema tests with:
+
+```bash
+php tests/run.php
 ```
 
-At least one `user_group` must be included inside the `user_groups` tag. The `user_group` XML will look something like this:
-
-```xml
-<user_group>
-  <role_id>1048576</role_id>
-  <context_id>1</context_id>
-  <is_default>true</is_default>
-  <show_title>false</show_title>
-  <permit_self_registration>true</permit_self_registration>
-  <permit_metadata_edit>false</permit_metadata_edit>
-  <name locale="en_US">Reader</name>
-  <abbrev locale="en_US">Read</abbrev>
-  <stage_assignments/>
-</user_group>
-```
+Before production use, import the generated files into a disposable copy of the target OJS 3.5 journal and verify metadata, roles, covers, and galleys.

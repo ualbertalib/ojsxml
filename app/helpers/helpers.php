@@ -184,7 +184,7 @@ function csv_to_array($filename='', $delimiter=',')
     $data = array();
     if (($handle = fopen($filename, 'r')) !== false)
     {
-        while (($row = fgetcsv($handle, 10000, $delimiter,'"')) !== FALSE)
+        while (($row = fgetcsv($handle, 10000, $delimiter, '"', '\\')) !== FALSE)
         {
             $cleanedUpRow = removeZeroWidthSpaces($row);
             if (empty($cleanedUpRow[0])) continue;

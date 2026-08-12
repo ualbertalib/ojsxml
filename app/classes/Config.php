@@ -11,8 +11,8 @@ class Config {
         self::$data = parse_ini_file($configFile);
     }
 
-    static public function get($key) {
-        return self::$data[$key];
+    static public function get($key, $default = null) {
+        return self::$data[$key] ?? $default;
     }
 
 }

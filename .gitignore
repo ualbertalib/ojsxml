@@ -3,4 +3,8 @@ docroot/csv/*.csv
 docroot/output/*.xml
 *.db
 
-/docroot/csv/abstracts/*.csv
+/docroot/csv/abstracts/**
+!/docroot/csv/abstracts/**/
+!/docroot/csv/abstracts/**/.gitkeep
+
+*.xml

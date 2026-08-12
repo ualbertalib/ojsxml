@@ -23,4 +23,8 @@ require ('classes/Config.php');
 
 require('classes/Logger.php');
 
-Config::load("config.ini");
+$configFile = getenv("OJSXML_CONFIG");
+if ($configFile === false || $configFile === "") {
+    $configFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . "config.ini";
+}
+Config::load($configFile);

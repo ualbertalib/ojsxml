@@ -10,6 +10,7 @@ class csvToXmlConverter {
     var $_user;
     var $_sourceDir;
     var $_destinationDir;
+    var $_userGroupsFile;
 
     /**
      * csvToXmlConverter constructor.
@@ -19,7 +20,7 @@ class csvToXmlConverter {
     function __construct($argv = array()) {
         array_shift($argv);
 
-        if (sizeof($argv) != 4) {
+        if (sizeof($argv) < 4 || sizeof($argv) > 5) {
             $this->usage();
         }
 
@@ -27,6 +28,7 @@ class csvToXmlConverter {
         $this->_user = array_shift($argv);
         $this->_sourceDir = array_shift($argv);
         $this->_destinationDir = array_shift($argv);
+        $this->_userGroupsFile = array_shift($argv) ?: Config::get("user_groups_file", "");
 
         $validCommands = [
             "issues",
@@ -53,6 +55,12 @@ class csvToXmlConverter {
             echo "[Error]: <destination_directory> must be a valid directory" . PHP_EOL;
             exit();
         }
+        if (($this->_command == "users" || $this->_command == "users:test")
+            && (!is_file($this->_userGroupsFile) || !is_readable($this->_userGroupsFile))) {
+            echo "[Error]: users commands require a readable OJS 3.5 user groups XML file "
+                . "as the final argument or user_groups_file in config.ini" . PHP_EOL;
+            exit();
+        }
 
     }
 
@@ -61,9 +69,10 @@ class csvToXmlConverter {
      */
     public function usage() {
         echo "Script to convert issue or user CSV data to OJS XML" . PHP_EOL
-            . "Usage: issues|users|users:test <ojs_username> <source_directory> <destination_directory>" . PHP_EOL . PHP_EOL
+            . "Usage: issues <ojs_username> <source_directory> <destination_directory>" . PHP_EOL
+            . "       users|users:test <ojs_username> <source_directory> <destination_directory> [user_groups_xml]" . PHP_EOL . PHP_EOL
             . 'NB: `issues` source directory must include "issue_cover_images" and "article_galleys" directory' . PHP_EOL
-            . 'user:test appends "test" to user email addresses' . PHP_EOL;
+            . 'users:test appends "test" to user email addresses' . PHP_EOL;
         exit();
     }
 
@@ -144,7 +153,11 @@ class csvToXmlConverter {
             if (empty($data)) {
                 continue;
             }
-            $xmlBuilder = new UsersXmlBuilder($isTest,$destinationDir . "/users_{$filesCount}.xml");
+            $xmlBuilder = new UsersXmlBuilder(
+                $isTest,
+                $destinationDir . "/users_{$filesCount}.xml",
+                $this->_userGroupsFile
+            );
             $xmlBuilder->setData($data);
             $xmlBuilder->buildXml();
         }

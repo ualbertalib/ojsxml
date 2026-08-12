@@ -132,8 +132,8 @@ class IssuesXmlBuilder extends XMLBuilder {
         $sectionsData = $this->getDBManager()->getSectionsData($titleName, $volume, $issue);
 
         $this->getXmlWriter()->startElement("sections");
-        foreach ($sectionsData as $sectionData) {
-            $this->writeSection($sectionData);
+        foreach ($sectionsData as $sectionSequence => $sectionData) {
+            $this->writeSection($sectionData, $sectionSequence);
             $this->_sectionAbbreviations[] = $sectionData["sectionAbbrev"];
         }
 
@@ -144,11 +144,14 @@ class IssuesXmlBuilder extends XMLBuilder {
      * Writes out section metadata for an issue
      *
      * @param array $sectionData
+     * @param int $sectionSequence Zero-based display order required by OJS 3.5
      */
-    function writeSection($sectionData) {
+    function writeSection($sectionData, $sectionSequence) {
         $this->getXmlWriter()->startElement("section");
         $sectionAbbrev = xmlFormat($sectionData["sectionAbbrev"]);
         $this->getXmlWriter()->writeAttribute("ref", $sectionAbbrev);
+        $this->getXmlWriter()->writeAttribute("seq", (string) $sectionSequence);
+        $this->getXmlWriter()->writeAttribute("abstract_word_count", "0");
 
         $this->getXmlWriter()->startElement("abbrev");
         $this->addLocaleAttribute();
@@ -256,6 +259,7 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeAttribute("status", "3");
         $this->getXmlWriter()->writeAttribute("stage" ,"production");
         $this->getXmlWriter()->writeAttribute("current_publication_id", $articleData["currentId"]);
+        $this->addLocaleAttribute();
 
         $this->_writeIdElement($articleData["currentId"]);
 
@@ -269,7 +273,7 @@ class IssuesXmlBuilder extends XMLBuilder {
 
     function _writeSubmissionFile(array $articleData) {
 
-        if (trim($articleData["fileName"] == "")) return;
+        if (trim($articleData["fileName"]) == "") return;
 
         $path = $this->_articleGalleysDir . $articleData["fileName"];
 		$filesize = filesize($path);
@@ -316,7 +320,6 @@ class IssuesXmlBuilder extends XMLBuilder {
     function writePublication($articleData) {
         $this->getXmlWriter()->startElement("publication");
         $this->getXmlWriter()->writeAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
-        $this->addLocaleAttribute();
         $this->getXmlWriter()->writeAttribute("version", "1");
         $this->getXmlWriter()->writeAttribute("status", "3");
         $this->getXmlWriter()->writeAttribute("date_published", date("Y-m-d", strtotime(trim($articleData["datePublished"]))));
@@ -406,14 +409,18 @@ class IssuesXmlBuilder extends XMLBuilder {
 		
 		
 		
-		$this->getXmlWriter()->startElement("licenseUrl");        
-        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["licenseUrl"])));
-        $this->getXmlWriter()->endElement();
+		if (trim($articleData["licenseUrl"]) != "") {
+			$this->getXmlWriter()->startElement("licenseUrl");
+            $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["licenseUrl"])));
+            $this->getXmlWriter()->endElement();
+		}
 		
-		$this->getXmlWriter()->startElement("copyrightHolder"); 
-		$this->addLocaleAttribute();
-        $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightHolder"])));
-        $this->getXmlWriter()->endElement();
+		if (trim($articleData["copyrightHolder"]) != "") {
+			$this->getXmlWriter()->startElement("copyrightHolder");
+			$this->addLocaleAttribute();
+            $this->getXmlWriter()->writeRaw(xmlFormat(trim($articleData["copyrightHolder"])));
+            $this->getXmlWriter()->endElement();
+		}
 		
 		if(trim($articleData["copyrightYear"]) != ""){
 			$this->getXmlWriter()->startElement("copyrightYear");        
@@ -423,13 +430,16 @@ class IssuesXmlBuilder extends XMLBuilder {
 		
 		
 
-        if (semiColonFix($articleData["keywords"] != "")) {
+        if (trim($articleData["keywords"]) != "") {
             $keywordArray = parseSemiColon($articleData["keywords"]);
             $this->getXmlWriter()->startElement("keywords");
             $this->addLocaleAttribute();
             foreach ($keywordArray as $keyword) {
+                if (trim($keyword) == "") continue;
                 $this->getXmlWriter()->startElement("keyword");
+                $this->getXmlWriter()->startElement("name");
                 $this->getXmlWriter()->writeRaw(xmlFormat(trim($keyword)));
+                $this->getXmlWriter()->endElement();
                 $this->getXmlWriter()->endElement();
             }
             $this->getXmlWriter()->endElement();
@@ -491,8 +501,10 @@ class IssuesXmlBuilder extends XMLBuilder {
 
         if (trim($autorData["affiliation"]) != "") {
             $this->getXmlWriter()->startElement("affiliation");
+            $this->getXmlWriter()->startElement("name");
             $this->addLocaleAttribute();
             $this->getXmlWriter()->writeRaw(trim($autorData["affiliation"]));
+            $this->getXmlWriter()->endElement();
             $this->getXmlWriter()->endElement();
         }
 
@@ -511,8 +523,10 @@ class IssuesXmlBuilder extends XMLBuilder {
 
     function writeArticleGalley($articleData) {
         $fileName = $articleData["fileName"];
+        if (trim($fileName) == "") return;
+
         $fileExt = get_file_extension($fileName);
-        // Disabled for OJS 3.2
+        // Remote galleys are disabled; files are embedded for portable imports.
 //        $pdfUrl = Config::get("pdf_url");
 
         $this->getXmlWriter()->startElement("article_galley");
@@ -536,7 +550,7 @@ class IssuesXmlBuilder extends XMLBuilder {
         $this->getXmlWriter()->writeAttribute("id", $articleData["currentId"]);
         $this->getXmlWriter()->endElement();
 
-        // Disabled for OJS 3.2
+        // Use this alternative only when the target OJS can retrieve remote files.
 //        $this->getXmlWriter()->startElement("remote");
 //        $this->getXmlWriter()->writeAttribute("src", $pdfUrl . xmlFormat($fileName));
 //        $this->getXmlWriter()->endElement();

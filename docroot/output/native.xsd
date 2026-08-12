@@ -15,7 +15,7 @@
 	<!--
 	  - Base the native import/export schema on the PKP submission model.
 	  -->
-	<include schemaLocation="../../../lib/pkp/plugins/importexport/native/pkp-native.xsd" />
+	<include schemaLocation="pkp-native.xsd" />
 
 	<!-- Allow the use of "article" in place of "submission" -->
 	<element name="article" substitutionGroup="pkp:submission">
